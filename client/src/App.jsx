@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { getprofileThunk } from './store/slice/user/user.thunk';
