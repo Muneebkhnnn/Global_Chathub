@@ -52,7 +52,6 @@ function ResetPassword() {
             ...formData,
             resetPasswordToken
         }))
-        console.log(result)
         if (result.type.endsWith('fulfilled')) {
             setIsSuccess(true)
             setTimeout(() => navigate('/Login'), 3000)
@@ -64,7 +63,6 @@ function ResetPassword() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-md w-full space-y-8">
                 {isSuccess ? (
-                    // Success State
                     <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-green-500/20">
                         <div className="text-center">
                             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
@@ -83,7 +81,6 @@ function ResetPassword() {
                         </div>
                     </div>
                 ) : (
-                    // Reset Form
                     <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 border border-gray-700">
                         <div className="text-center mb-8">
                             <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-purple-100 mb-4">
@@ -96,7 +93,6 @@ function ResetPassword() {
                         </div>
 
                         <form className="space-y-6" onSubmit={handleSubmit}>
-                            {/* Password Field */}
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
                                     New Password
@@ -122,7 +118,6 @@ function ResetPassword() {
                                 </div>
                             </div>
 
-                            {/* Confirm Password Field */}
                             <div>
                                 <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-2">
                                     Confirm New Password
@@ -148,7 +143,6 @@ function ResetPassword() {
                                 </div>
                             </div>
 
-                            {/* Error Display */}
                             {Error && (
                                 <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg">
                                     <div className="flex items-center">
@@ -160,7 +154,6 @@ function ResetPassword() {
                                 </div>
                             )}
 
-                            {/* Submit Button */}
                             <div>
                                 <button
                                     type="submit"
@@ -181,7 +174,6 @@ function ResetPassword() {
                                 </button>
                             </div>
 
-                            {/* Back to Login Link */}
                             <div className="text-center">
                                 <Link
                                     to="/Login"

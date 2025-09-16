@@ -13,22 +13,20 @@ import { store } from '../../store/store'
 function Home() {
 
   const { socket, onlineUsers } = useSelector(state => state.socketReducer)
-  console.log(onlineUsers)
+
 
   const dispatch = useDispatch()
-  const { isAuthenticated, userProfile, otherUsers, hasOpened } = useSelector(state => state.user)
+  const { isAuthenticated, userProfile, hasOpened } = useSelector(state => state.user)
 
-  // 🔧 Mobile state management
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // 🔧 Detect screen size
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
       if (!mobile) {
-        setIsMobileMenuOpen(false) // Close mobile menu on desktop
+        setIsMobileMenuOpen(false) 
       }
     }
 
@@ -38,15 +36,14 @@ function Home() {
   }, [])
 
   useEffect(() => {
-    if (!isAuthenticated || !userProfile?._id) return; // ✅ Don't initialize if socket exists
+    if (!isAuthenticated || !userProfile?._id) return;
     dispatch(initializeSocket(userProfile?._id));
   }, [isAuthenticated, userProfile?._id, dispatch]);
 
   useEffect(() => {
-    if (!socket || !isAuthenticated) return // agr socket instance hi nhi bna h state m to return ajao
+    if (!socket || !isAuthenticated) return 
 
     const handleOnlineUsers = (onlineUsers) => {
-      console.log("🔄 Received online users update:", onlineUsers);
       dispatch(setOnlineUsers(onlineUsers))
     }
 
@@ -62,7 +59,6 @@ function Home() {
       socket.on('profileUpdated', handleProfileUpdate)
       socket.emit("user:loggedIn", userProfile?.username);
     }
-
 
     socket.on('onlineUsers', handleOnlineUsers)
     socket.on('newMessage', handleNewMessage)
@@ -88,21 +84,14 @@ function Home() {
     socket.on('newUserJoined', handleNewUserJoined)
 
     const handleNewUserMessage = (data, type) => {
-      const currentOtherUsers = store.getState().user.otherUsers // pulls latest data frm redux store
-      console.log(currentOtherUsers)
-//prblm
+      const currentOtherUsers = store.getState().user.otherUsers 
       if (type === "sent") {
-        // ✅ I sent a message → receiver should exist
         const receiverExists = currentOtherUsers.some(
           (user) => user._id === data.recieverId
         );
-        console.log('receiver exist',receiverExists)
-        // isme kbhi aynge hi nhi q k agr sender h hum to reciever to zahir si btt h hga hi otherusers m 
         if (!receiverExists) {
-          console.log("[sent] New conversation detected, refreshing user list");
           dispatch(getOtherUsersThunk({ limit: 10, skip: 0, refresh: true }));
 
-          // Mark receiver as unopened until I open the chat
           if (!(data.recieverId in hasOpened)) {
             dispatch(
               setHasOpened({
@@ -115,17 +104,12 @@ function Home() {
           dispatch(updateOtherUsers(data));
         }
       } else {
-        // isme aa skte h q k mre acc m naya user nhi hskta h agr mne phle login krlya ho or wo baad m signUP hua ho
-        // ✅ I received a message → sender should exist
         const senderExists = currentOtherUsers.some(
           (user) => user._id === data.senderId
         );
-        console.log('sender exist',senderExists)
         if (!senderExists) {
-          console.log("[received] New conversation detected, refreshing user list");
           dispatch(getOtherUsersThunk({ limit: 10, skip: 0, refresh: true }));
 
-          // Mark sender as unopened until I open the chat
           if (!(data.senderId in hasOpened)) {
             dispatch(
               setHasOpened({
@@ -140,10 +124,8 @@ function Home() {
       }
     };
 
-
     socket.on('messageSent', (data) => handleNewUserMessage(data, "sent"));
     socket.on('messageReceived', (data) => handleNewUserMessage(data, "received"));
-
 
     return () => {
       socket.off('onlineUsers', handleOnlineUsers);
@@ -161,10 +143,8 @@ function Home() {
 
   return (
     <div className='flex h-screen relative overflow-hidden'>
-      {/* 🔧 Responsive Layout */}
       {isMobile ? (
         <>
-          {/* Mobile: Sidebar as overlay + Full-width message container */}
           <UserSideBar
             isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
@@ -178,7 +158,6 @@ function Home() {
         </>
       ) : (
         <>
-          {/* Desktop: Side-by-side layout */}
           <UserSideBar isMobile={false} />
           <MessageContainer isMobile={false} />
         </>

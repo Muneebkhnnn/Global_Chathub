@@ -9,9 +9,6 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
     req.cookies.token ||
     req.header("Authorization")?.replace("Bearer ", "");
 
-    console.log("Token exists:", token ? 'yes' : 'no');
-    console.log("Cookies:", req.cookies);
-
   if (!token) {
     throw new ApiError(401, "Access token missing");
   }
@@ -29,7 +26,6 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
     next();
     
   } catch (error) {
-    console.log("JWT verification error:", error);;
     throw new ApiError(401,error.message)
     
   }

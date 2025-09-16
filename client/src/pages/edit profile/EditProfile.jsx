@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { editProfileThunk } from '../../store/slice/user/user.thunk';
 import { useNavigate } from 'react-router-dom';
-import { setSelectedUser } from '../../store/slice/user/user.slice';
 
 function EditProfile() {
 
@@ -47,12 +46,9 @@ function EditProfile() {
 
   const handleChange = (e) => {
 
-    const { name, value, type, files } = e.target; // e.target.files given by react
-    console.log(name, value)
-
+    const { name, value, type, files } = e.target; 
     if (type === "file") {
       const file = files[0];
-      //console.log(file)
       if (file) {
         setformData(prev => ({
           ...prev,
@@ -83,8 +79,7 @@ function EditProfile() {
       return
     }
 
-    const response = await dispatch(editProfileThunk(formData))
-    console.log(response)
+    await dispatch(editProfileThunk(formData))
     navigate('/')
   }
 
@@ -106,9 +101,7 @@ function EditProfile() {
       <div className='min-h-screen flex items-center justify-center '>
         <div className="max-w-md w-full bg-white shadow-md rounded-xl p-6">
           <h2 className="text-2xl font-semibold text-center mb-6">Edit Profile</h2>
-
           <form onSubmit={handleSubmit} className="space-y-5 ">
-            {/* Avatar Upload */}
             <div className="flex flex-col items-center">
               <label
                 htmlFor="avatar"
@@ -126,7 +119,6 @@ function EditProfile() {
               />
             </div>
 
-            {/* Username */}
             <div>
               <label htmlFor="username" className="block text-sm font-medium mb-1">
                 Username
@@ -147,8 +139,7 @@ function EditProfile() {
                 </div>
               )}
             </div>
-
-            {/* Full Name */}
+         
             <div>
               <label htmlFor="fullName" className="block text-sm font-medium mb-1">
                 Full Name
@@ -169,7 +160,7 @@ function EditProfile() {
                 </div>)}
             </div>
 
-            {/* Submit */}
+          
             <button
               className="flex justify-center w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-1 rounded-lg transition "
               type="submit"

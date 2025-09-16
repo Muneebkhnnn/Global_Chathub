@@ -9,11 +9,9 @@ export const sendMessageThunk = createAsyncThunk(
       const response = await axiosInstance.post(`message/send/${recieverId}`, {
         message
       });
-      console.log(response);
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;
-      console.error(errorOutput);
       toast.error(errorOutput);
       return rejectWithValue(errorOutput);
     }
@@ -25,11 +23,9 @@ export const getMessageThunk = createAsyncThunk(
   async ({ recieverId}, { rejectWithValue }) => {
     try {
       const response = await axiosInstance.get(`message/get-messages/${recieverId}`);
-      console.log(response.data)
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;
-      console.error(errorOutput);
       toast.error(errorOutput );
       return rejectWithValue(errorOutput);
     }

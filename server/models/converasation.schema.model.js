@@ -4,7 +4,7 @@ const conversationSchema = new Schema(
   {
     members: [
       {
-        type: Schema.Types.ObjectId, // it means storing the ObjectId of the User not the whole User object
+        type: Schema.Types.ObjectId, 
         ref: "User",
       },
     ],
@@ -38,7 +38,6 @@ const conversationSchema = new Schema(
   { timestamps: true }
 );
 
-// index for faster sorting by activity
 conversationSchema.index({ lastMessageAt: -1 });
 
 export const Conversation = mongoose.model("Conversation", conversationSchema);

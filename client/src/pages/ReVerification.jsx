@@ -22,9 +22,7 @@ function ReVerification() {
         }
 
         (async () => {
-            const response = await dispatch(resendVerificationEmailThunk({ email }));
-            console.log(response);
-            
+            await dispatch(resendVerificationEmailThunk({ email }));
         })();
     }
 

@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'
 import { loginUserThunk } from '../../store/slice/user/user.thunk';
 import { useNavigate } from 'react-router-dom';
-import toast from 'react-hot-toast';
 
 function Login() {
 
@@ -23,18 +22,13 @@ function Login() {
 
   const [showPassword, setShowPassword] = useState(false);
 
-  // Handle input changes
   const handleChange = (e) => {
-    console.log(e.target)
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
-   // console.log(formData)
-
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -45,7 +39,6 @@ function Login() {
 
   const validateForm = () => {
     const newErrors = {};
-
 
     if (!formData.identifier.trim()) {
       newErrors.identifier = 'Username or email is required';
@@ -67,11 +60,8 @@ function Login() {
     if (isAuthenticated){
       navigate('/')
     }
-    console.log('is user logged in: ', isAuthenticated)
   }, [isAuthenticated]);
 
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,19 +69,14 @@ function Login() {
       return;
     }
     
-   
     const response = await dispatch(loginUserThunk(formData))
     
-    console.log(response.payload)
     if(response.payload==='Please verify yourself'){
       navigate('/resend-verification-email')
     }
 
-    console.log('login')
-
     if (response.payload?.success) {
-      navigate('/') 
-      
+      navigate('/')  
     }
 
   };
@@ -99,7 +84,6 @@ function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-600 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        {/* Card Header */}
         <div className="p-8">
           <div className="flex flex-col justify-center items-center mb-6">
             <div className="mb-4">
@@ -136,7 +120,6 @@ function Login() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -169,7 +152,6 @@ function Login() {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex justify-between items-center">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -183,7 +165,6 @@ function Login() {
               </Link>
             </div>
 
-            {/* Login Button */}
             <div className="mt-6">
               <button
                 type="submit"
@@ -203,7 +184,6 @@ function Login() {
             </div>
           </form>
 
-          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -213,7 +193,6 @@ function Login() {
             </div>
           </div>
 
-          {/* Sign Up Link */}
           <div className="text-center mt-6">
             <p className="text-gray-600">
               Don't have an account?{' '}

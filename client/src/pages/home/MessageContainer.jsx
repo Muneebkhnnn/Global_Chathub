@@ -16,9 +16,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
   const { onlineUsers, socket } = useSelector(state => state.socketReducer)
 
   const isUserOnline = onlineUsers?.includes(selectedUser?._id)
-  console.log('user online', isUserOnline)
 
-  //console.log(messages)
   const { userProfile } = useSelector(state => state.user);
 
   const filteredMessages = messages?.filter(
@@ -26,12 +24,11 @@ function MessageContainer({ isMobile, onMenuClick }) {
       (msg.senderId === userProfile?._id && msg.recieverId === selectedUser?._id) ||
       (msg.senderId === selectedUser?._id && msg.recieverId === userProfile?._id)
   );
-  console.log(filteredMessages)
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [filteredMessages]); // run whenever messages change
+  }, [filteredMessages]); 
 
 
   useEffect(() => {
@@ -53,14 +50,12 @@ function MessageContainer({ isMobile, onMenuClick }) {
     const handleTyping = (senderId) => {
       if (senderId === selectedUser?._id) {
         settypingStatus(true);
-        console.log('typing...')
       }
     }
 
     const typingStopped = (senderId) => {
       if (senderId === selectedUser?._id) {
         settypingStatus(false);
-        console.log('typing stopped')
       }
     }
 
@@ -76,12 +71,10 @@ function MessageContainer({ isMobile, onMenuClick }) {
 
   return (
     <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full">
-      {/* Chat Header */}
       {selectedUser ? (
         <>
           <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0">
             <div className="flex items-center gap-2 md:gap-3">
-              {/* Mobile menu button */}
               {isMobile && (
                 <button
                   onClick={onMenuClick}
@@ -137,14 +130,12 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   </div>
                 )}
               </div>
-              {/* Message Input */}
               <SendMessage isMobile={isMobile} />
             </>
           )}
         </>
       ) : (
         <>
-          {/* Header shown even when no chat selected (mobile needs menu) */}
           <div className="border-b border-gray-700 p-3 md:p-5 flex-shrink-0">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
@@ -160,7 +151,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
             </div>
           </div>
 
-          {/* Empty state when no user selected */}
+          {/* Empty state */}
           <div className="flex flex-col items-center justify-center flex-1 text-gray-500 p-3">
             <div className="text-center">
               <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
@@ -173,8 +164,6 @@ function MessageContainer({ isMobile, onMenuClick }) {
         </>
       )
       }
-
-
     </div>
   )
 }

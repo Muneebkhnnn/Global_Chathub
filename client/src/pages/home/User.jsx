@@ -29,7 +29,6 @@ function User({ userDetails, className = '', isMobile = false, onUserSelect }) {
         ${showUnreadDot ? 'bg-gray-800/50' : ''}
       `}
     >
-      {/* Avatar */}
       <div className="relative flex-shrink-0">
         <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full overflow-hidden bg-gray-600 ${showUnreadDot ? 'ring-2 ring-blue-500/30' : ''}`}>
           <img
@@ -39,20 +38,17 @@ function User({ userDetails, className = '', isMobile = false, onUserSelect }) {
           />
         </div>
 
-        {/* Online indicator */}
         {isUserOnline && (
           <div className={`absolute bottom-0 right-0 ${isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'} bg-green-500 border-2 border-gray-800 rounded-full`} />
         )}
       </div>
 
-      {/* Username & last message */}
       <div className="min-w-0 flex-1">
         <div className="flex items-center justify-between">
           <h2 className={`${isMobile ? 'text-sm' : 'text-sm md:text-sm'} ${showUnreadDot ? 'font-semibold text-white' : 'font-medium text-gray-200'} truncate`}>
             {userDetails?.username}
           </h2>
           
-          {/* Unread indicator on the right */}
           {showUnreadDot && !isSelected && (
             <div className="flex items-center ml-2">
               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>

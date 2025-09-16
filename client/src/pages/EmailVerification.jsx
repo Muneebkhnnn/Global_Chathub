@@ -62,7 +62,6 @@ return (
                         Click here to Login immediately
                     </Link>
                 </div>
-                // chnges to be mde
             ) : verificationError ? (
                 <div>
                     <div className="text-red-500 text-6xl mb-4">❌</div>

@@ -23,7 +23,7 @@ io.on("connection", (socket) => {
 
   if (!userId) return;
 
-  // If user is already having a connection, we will disconnect the old one
+ 
   if (userSocketMap[userId]) {
     const oldSocketId = userSocketMap[userId];
     const oldSocket = io.sockets.sockets.get(oldSocketId);
@@ -52,7 +52,6 @@ io.on("connection", (socket) => {
     io.emit("onlineUsers", Object.keys(userSocketMap));
     console.log("User removed from online list:", userId);
   }
-
   // Force disconnect so socket cannot keep connection alive
   socket.disconnect(true);
 });

@@ -4,8 +4,6 @@ import messageReducer from "./slice/message/message.slice";
 import socketReducer from "./slice/socket/socket.slice";
 import { userInitialState } from "./slice/user/user.slice";
 
-
-
 export const store = configureStore({
   reducer: {
     user: userReducer,
@@ -21,7 +19,7 @@ export const store = configureStore({
     }
   ),
 
-  preloadedState:{ //Hey Redux, instead of starting fresh with the slice’s initialState, use this state when booting up
+  preloadedState:{ 
     user:{
       ...userInitialState,
       hasOpened:{}

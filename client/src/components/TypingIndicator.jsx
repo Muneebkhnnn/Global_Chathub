@@ -5,7 +5,6 @@ function TypingIndicator({ isMobile = false }) {
     
     return (
         <div className={`flex items-center space-x-1 ${isMobile ? 'pt-2' : 'pt-2 md:pt-3'}`}>
-            {/* Dot 1 */}
             <div className={`${dotSize} bg-blue-200 rounded-full animate-bounce`}
                 style={{
                     animationDelay: '0s',
@@ -13,21 +12,18 @@ function TypingIndicator({ isMobile = false }) {
                 }}>
             </div>
 
-            {/* Dot 2 */}
             <div className={`${dotSize} bg-blue-300 rounded-full animate-bounce`}
                 style={{
                     animationDelay: '0.2s',
                     animationDuration: '1.4s'
                 }}></div>
 
-            {/* Dot 3 */}
             <div className={`${dotSize} bg-blue-400 rounded-full animate-bounce`}
                 style={{
                     animationDelay: '0.4s',
                     animationDuration: '1.4s'
                 }}></div>
 
-            {/* Dot 4 */}
             <div className={`${dotSize} bg-blue-600 rounded-full animate-bounce`}
                 style={{
                     animationDelay: '0.6s',

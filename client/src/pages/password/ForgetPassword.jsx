@@ -6,7 +6,7 @@ import { forgetPasswordThunk } from '../../store/slice/user/user.thunk';
 function ForgetPassword() {
 
     const [success, setsuccess] = useState(false);
-    const [message, setMessage] = useState(''); // ✅ Add message to state
+    const [message, setMessage] = useState(''); 
     const [email, setEmail] = useState('');
     const dispatch = useDispatch();
     const { buttonLoading } = useSelector((state) => state.user);
@@ -24,15 +24,11 @@ function ForgetPassword() {
             return;
         }
 
-
         const response = await dispatch(forgetPasswordThunk({ email }));
-        console.log(response);
 
-        // Check if the thunk was fulfilled (successful)
         if (response.type.endsWith('fulfilled')) {
             setMessage(response.payload?.message || "Reset link sent to your email!");
             setsuccess(true);
-            console.log('Success:', response.payload?.message);
         }
 
     }

@@ -10,12 +10,10 @@ export const loginUserThunk = createAsyncThunk(
         identifier,
         password,      
       });
-      console.log(response);
       toast.success("login success");
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;
-      console.error(errorOutput);
       toast.error(errorOutput || "An error occurred while logging in.");
       return rejectWithValue(errorOutput);
     }
@@ -37,15 +35,12 @@ export const SignUpUserThunk = createAsyncThunk(
         confirmPassword,
         gender,
       });
-      console.log(response);
       toast.success(
         "Account created successfully! Please check your email to verify your account."
       );
       return response.data;
     } catch (error) {
-      console.log(error);
       const errorOutput = error?.response?.data;
-      console.error(errorOutput);
       toast.error(
         error?.response?.data?.message || "An error occurred while Signing in."
       );
@@ -61,13 +56,10 @@ export const verifyUserthunk = createAsyncThunk(
       const response = await axiosInstance.get(
         `/users/verify-email/${verificationToken}`
       );
-      console.log(response.data);
       toast.success("Email verified successfully");
       return response.data;
     } catch (error) {
-      console.log(error);
       const errorOutput = error?.response?.data?.message;
-      console.error(errorOutput);
       toast.error(
         errorOutput || "An error occurred while verifying your email."
       );
@@ -83,8 +75,6 @@ export const forgetPasswordThunk = createAsyncThunk(
       const response = await axiosInstance.post("/users/forget-password", {
         email,
       });
-      console.log(response.data);
-      toast.success(response.data?.message);
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;
@@ -105,7 +95,6 @@ export const resetPasswordThunk = createAsyncThunk(
         password,
         confirmPassword,
       });
-      console.log(response.data);
       toast.success("passsword reset successfully");
       return response.data;
     } catch (error) {
@@ -125,7 +114,6 @@ export const logoutUserThunk = createAsyncThunk(
     // _ is used to ignore the first argument
     try {
       const response = await axiosInstance.post("/users/logout");
-      console.log(response);
       toast.success("logout  successfully");
       return response.data;
     } catch (error) {
@@ -140,7 +128,6 @@ export const logoutUserThunk = createAsyncThunk(
 export const getprofileThunk = createAsyncThunk(
   "users/get-profile",
   async (_, { rejectWithValue }) => {
-    // _ is used to ignore the first argument
     try {
       const response = await axiosInstance.get("/users/get-profile");
       return response.data;
@@ -154,12 +141,10 @@ export const getprofileThunk = createAsyncThunk(
 export const getOtherUsersThunk = createAsyncThunk(
   "users/other-users",
   async ({ limit, skip, refresh=false }, { rejectWithValue }) => {
-    console.log(`📡 Fetching users: limit=${limit}, skip=${skip}, refresh=${refresh}`);
     try {
       const response = await axiosInstance.get(
         `/users/other-users?limit=${limit}&skip=${skip}`
       );
-      console.log(response);
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;
@@ -178,13 +163,11 @@ export const resendVerificationEmailThunk = createAsyncThunk(
           email,
         }
       );
-      console.log(response);
       toast.success(
         "Verification email sent successfully! Please check your email."
       );
       return response.data;
     } catch (error) {
-      console.log(error);
       const errorOutput = error?.response?.data?.message;
       console.error(errorOutput);
       toast.error(
@@ -203,7 +186,7 @@ export const editProfileThunk = createAsyncThunk(
       formData.append("username", username);
       formData.append("fullName", fullName);
       if (avatar) {
-        formData.append("avatar", avatar); // File object
+        formData.append("avatar", avatar); 
       }
 
       const response = await axiosInstance.patch(
@@ -215,10 +198,7 @@ export const editProfileThunk = createAsyncThunk(
           },
         }
       );
-
-      console.log(response);
       toast.success("Profile Updated Successfully");
-      console.log(response.data)
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;

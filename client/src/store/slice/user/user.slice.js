@@ -56,12 +56,9 @@ const userSlice = createSlice({
         );
       }
 
-      console.log(userIdx); // userIdx found
-
       if (userIdx === -1) return
 
       let [user] = state.otherUsers.splice(userIdx, 1);
-      console.log(user);
 
       user.lastUpdated = payload.lastUpdated;
       user.lastMessage = payload.savedMessage;
@@ -76,7 +73,6 @@ const userSlice = createSlice({
       ) {
         // if i am sender i wnt receiverId in hasOpened
         state.hasOpened[payload.recieverId] = false;
-        console.log("in reciever", state.hasOpened);
       }
 
       if (
@@ -86,7 +82,6 @@ const userSlice = createSlice({
       ) {
         // if i am receiver i wnt senderId in hasOpened
         state.hasOpened[payload.senderId] = false;
-        console.log("in sender", state.hasOpened);
       }
 
       if (state.selectedUser) {
@@ -102,8 +97,6 @@ const userSlice = createSlice({
           state.hasOpened[payload.recieverId] = true;
         }
       }
-
-      console.log(state.otherUsers);
     },
 
     markAsOpened: (state, action) => {
@@ -116,15 +109,12 @@ const userSlice = createSlice({
       }
     },
 
-
-
     updateUserProfile: (state, action) => {
       let updatedUser = action.payload;
       if (updatedUser._id === state.userProfile._id) {
-        //update my own profile
         state.userProfile = updatedUser;
       } else {
-        //this is SOMEONE ELSE → update them in my otherUsers list
+        //SOMEONE ELSE so  update them in my otherUsers list
         state.otherUsers = state.otherUsers.map((u) =>
           u._id === updatedUser._id
             ? {
@@ -165,11 +155,7 @@ const userSlice = createSlice({
         state.buttonLoading = true;
       })
       .addCase(SignUpUserThunk.fulfilled, (state, action) => {
-        console.log("inside signup:", action.payload);
-        // Don't set userProfile or isAuthenticated on signup
-        // User needs to verify email first
         state.buttonLoading = false;
-        console.log("signup successfull");
       })
       .addCase(SignUpUserThunk.rejected, (state, action) => {
         console.error("Failed to fetch user data:", action.error);
@@ -183,13 +169,12 @@ const userSlice = createSlice({
       .addCase(verifyUserthunk.fulfilled, (state, action) => {
         state.isVerified = true;
         state.screenLoading = false;
-        state.Error = null; // Clear any previous errors
+        state.Error = null; 
       })
       .addCase(verifyUserthunk.rejected, (state, action) => {
-        console.error("Failed to verify user:", action.payload); // Use action.payload
+        console.error("Failed to verify user:", action.payload); 
         state.screenLoading = false;
         state.Error = action.payload || "Verification failed";
-        console.log(state.Error);
         state.isVerified = false;
       });
 
@@ -211,13 +196,11 @@ const userSlice = createSlice({
       })
       .addCase(resetPasswordThunk.fulfilled, (state, action) => {
         state.buttonLoading = false;
-        state.Error = null; // Clear any previous errors
-        // state.buttonLoading
+        state.Error = null; 
       })
       .addCase(resetPasswordThunk.rejected, (state, action) => {
         console.error("Failed to update password:", action.payload);
         state.Error = action.payload || "Password reset failed";
-        console.log(state.Error);
         state.buttonLoading = false;
       });
 
@@ -259,18 +242,14 @@ const userSlice = createSlice({
         state.screenLoading = true;
       })
       .addCase(getprofileThunk.fulfilled, (state, action) => {
-        console.log(" get-profile successfull ");
         state.screenLoading = false;
         state.isAuthenticated = true;
-        console.log(action.payload);
         state.otherUsers = [];
         state.skip = 0;
         state.hasMore = true;
         state.userProfile = action.payload?.data;
-        console.log(state.userProfile);
       })
       .addCase(getprofileThunk.rejected, (state, action) => {
-        console.log(" get-profile failed ");
         state.screenLoading = false;
       });
 
@@ -280,28 +259,22 @@ const userSlice = createSlice({
       })
       .addCase(getOtherUsersThunk.fulfilled, (state, action) => {
         const incoming = action.payload?.data || [];
-        const isRefresh = action.meta.arg.refresh; // Check for refresh flag
+        const isRefresh = action.meta.arg.refresh;
 
         if (isRefresh) {
-           // ✅ REFRESH MODE: Replace entire list with fresh data
           state.otherUsers = incoming;
           state.skip = incoming.length;
           state.hasMore = incoming.length >= state.limit;
         } else {
-           // ✅ PAGINATION MODE: Append new users to existing list
-          // Build a Set of existing IDs for fast duplicate detection
           const existingIds = new Set(state.otherUsers.map((u) => u._id));
 
-          // Filter out duplicates (and current logged-in user just in case backend missed it)
           const uniqueIncoming = incoming.filter(
             (u) => u._id !== state.userProfile?._id && !existingIds.has(u._id)
           );
 
           if (state.skip === 0) {
-            // First (fresh) load
             state.otherUsers = uniqueIncoming;
           } else {
-            // Append only unique users
             state.otherUsers = [...state.otherUsers, ...uniqueIncoming];
           }
 
@@ -309,16 +282,8 @@ const userSlice = createSlice({
             state.hasMore = false;
           } else {
             state.hasMore = true;
-            state.skip += state.limit; // advance window
+            state.skip += state.limit; 
           }
-          console.log(
-            "[otherUsers] total:",
-            state.otherUsers.length,
-            "skip:",
-            state.skip,
-            "added unique:",
-            uniqueIncoming.length
-          );
         }
         state.otherUsersLoading = false;
       })
@@ -332,7 +297,6 @@ const userSlice = createSlice({
         state.buttonLoading = true;
       })
       .addCase(editProfileThunk.fulfilled, (state, action) => {
-        console.log("inside edit:", action.payload);
         state.userProfile = action.payload?.data;
         state.buttonLoading = false;
         state.otherUsers = [];

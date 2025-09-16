@@ -14,7 +14,6 @@ const messageSlice = createSlice({
     setNewMessage: (state, action) => {
       const oldMessages = state.messages ?? [];
       state.messages = [...oldMessages, action.payload];
-      console.log(action.payload)
     },
   },
 
@@ -24,7 +23,6 @@ const messageSlice = createSlice({
         state.buttonLoading = true;
       })
       .addCase(sendMessageThunk.fulfilled, (state, action) => {
-        console.log("Message sent:", action.payload);
         const oldMessages = state.messages ?? [];
         state.messages = [...oldMessages, action.payload?.data];
         state.buttonLoading = false;
@@ -38,7 +36,6 @@ const messageSlice = createSlice({
         state.messagesLoading = true;
       })
       .addCase(getMessageThunk.fulfilled, (state, action) => {
-        console.log(action.payload?.data);
         state.messages = action.payload?.data?.messages;
         state.messagesLoading = false;
       })

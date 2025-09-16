@@ -13,14 +13,12 @@ const PORT= process.env.PORT || 8000;
 app.use(
     cors({
         origin: process.env.CLIENT_URL , 
-        credentials: true // Allow cookies to be sent with requests
+        credentials: true 
     })
 );
 
-// Body parser middleware
-app.use(express.json()); // For JSON data
-app.use(express.urlencoded({ extended: true })); // For form-data
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true })); 
 connectDB();
 app.use(cookieParser())
 
@@ -29,7 +27,6 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/message', messageRoutes);
 
 
-// Error handler middleware (should be AFTER routes)
 app.use(errorHandler);
 
 server.listen(PORT, () => {

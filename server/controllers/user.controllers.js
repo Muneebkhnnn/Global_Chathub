@@ -66,18 +66,11 @@ const SignUp = asyncHandler(async (req, res) => {
   const verificationtoken = crypto.randomBytes(32).toString("hex");
 
   user.verificationToken = verificationtoken;
-  user.verificationTokenExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+  user.verificationTokenExpires = Date.now() + 10 * 60 * 1000; 
   await user.save();
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    console.log("📧 Attempting to send email to:", user.email);
-    console.log(
-      "🔑 Using Resend API Key:",
-      process.env.RESEND_API_KEY ? "✅ Set" : "❌ Missing"
-    );
-    console.log("🌐 Client URL:", process.env.CLIENT_URL);
-
     const emailResult = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: user.email,
@@ -94,11 +87,8 @@ const SignUp = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
-
-    console.log("✅ Email sent successfully:", emailResult);
   } catch (error) {
-    console.error("❌ Email sending failed:", error);
-    console.error("Error details:", error.message);
+    console.error("Email sending failed:", error);
     throw new ApiError(
       500,
       "Something went wrong while sending email: " + error.message
@@ -129,7 +119,6 @@ const verifyUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Invalid or expired verification token");
   }
 
-  // Check if token is expired
   if (
     user.verificationTokenExpires &&
     user.verificationTokenExpires < Date.now()
@@ -164,20 +153,12 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
 
   const verificationtoken = crypto.randomBytes(32).toString("hex");
   user.verificationToken = verificationtoken;
-  user.verificationTokenExpires = Date.now() + 15 * 60 * 1000; // 15 mins
+  user.verificationTokenExpires = Date.now() + 15 * 60 * 1000; 
   await user.save();
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
-  // send email with frontend route
   try {
-    console.log("📧 Attempting to send email to:", user.email);
-    console.log(
-      "🔑 Using Resend API Key:",
-      process.env.RESEND_API_KEY ? "✅ Set" : "❌ Missing"
-    );
-    console.log("🌐 Client URL:", process.env.CLIENT_URL);
-
     const emailResult = await resend.emails.send({
       from: "onboarding@resend.dev",
       to: user.email,
@@ -194,11 +175,8 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
-
-    console.log("✅ Email sent successfully:", emailResult);
   } catch (error) {
-    console.error("❌ Email sending failed:", error);
-    console.error("Error details:", error.message);
+    console.error("Email sending failed:", error);
     throw new ApiError(
       500,
       "Something went wrong while sending email: " + error.message
@@ -246,14 +224,14 @@ const login = asyncHandler(async (req, res) => {
   };
 
   const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
-    expiresIn: "1d", // Token expires in 1 day
+    expiresIn: "1d", 
   });
 
   const cookieOptions = {
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
-    httpOnly: true, // Prevents client-side access to the cookie
-    secure: true, // Always true for cross-origin cookies
-    sameSite: "None", // Always None for cross-origin
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    httpOnly: true, 
+    secure: true, 
+    sameSite: "None", 
   };
 
   const loggedInUser = await User.findById(user._id).select("-password");
@@ -270,7 +248,6 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const getProfile = asyncHandler(async (req, res) => {
-  console.log("reach get profile");
   return res
     .status(200)
     .json(new ApiResponse(200, "User profile fetched successfully", req.user));
@@ -278,8 +255,8 @@ const getProfile = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
   const cookieOptions = {
-    expires: new Date(Date.now()), // Set expiration to now to clear the cookie
-    httpOnly: true, // Prevents client-side access to the cookie
+    expires: new Date(Date.now()), 
+    httpOnly: true, 
     secure: true,
     sameSite: "None",
   };
@@ -296,10 +273,8 @@ const otherUsers = asyncHandler(async (req, res) => {
   const myId = req.user._id;
 
   const users = await User.aggregate([
-    // 1. exclude self
     { $match: { _id: { $ne: myId } } },
 
-    // 2. find the conversation between me and each user (if any)
     {
       $lookup: {
         from: "conversations",
@@ -329,8 +304,6 @@ const otherUsers = asyncHandler(async (req, res) => {
         as: "conversation",
       },
     },
-
-    // 3. derive lastUpdated (either lastMessageAt or user.createdAt) and lastMessage preview
     {
       $addFields: {
         lastUpdated: {
@@ -347,21 +320,17 @@ const otherUsers = asyncHandler(async (req, res) => {
         }
       },
     },
-
-    // 4. only return the fields you need in sidebar
     {
       $project: {
         fullName:1,
         username: 1,
-        avatar: 1, // change to your actual avatar field
-        email: 1, // optional
+        avatar: 1, 
+        email: 1, 
         lastMessage: 1,
         lastMessageSenderId:1,
         lastUpdated: 1,
       },
     },
-
-    // 5. sort by activity and apply pagination
     { $sort: { lastUpdated: -1 } },
     { $skip: skip },
     { $limit: limit },
@@ -402,9 +371,6 @@ const editProfile = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, "user details updated successfully", user));
   } catch (error) {
-    console.log(error.message);
-
-    // Only try to delete from Cloudinary if avatar was uploaded
     if (avatar && avatar.public_id) {
       await deleteFromCloudinary(avatar.public_id);
     }
@@ -423,12 +389,10 @@ const forgetPassword = asyncHandler(async (req, res) => {
 
   const resetPasswordToken = crypto.randomBytes(32).toString("hex");
   user.resetPasswordToken = resetPasswordToken;
-  user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+  user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; 
   await user.save();
 
   const resend = new Resend(process.env.RESEND_API_KEY);
-
-  // send email with frontend route
   try {
     const emailResult = await resend.emails.send({
       from: "onboarding@resend.dev",

@@ -14,16 +14,12 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      console.log(' in async of app.jsx')
       await dispatch(getprofileThunk());
-      console.log(' exiting async of app.jsx')
     })();
   }, [dispatch]);
 
-  // ✅ Separate effect to load hasOpened AFTER userProfile is available
   useEffect(() => {
     if (userProfile?._id) {
-      console.log('Loading hasOpened for user:', userProfile._id);
       const savedHasOpened = JSON.parse(
         localStorage.getItem(`hasOpened_${userProfile._id}`) || '{}'
       );
@@ -33,7 +29,6 @@ function App() {
 
   useEffect(() => {
     if (userProfile?._id) {
-      console.log('setting in locl storge')
       localStorage.setItem(`hasOpened_${userProfile?._id}`, JSON.stringify(hasOpened))
     }
   }, [hasOpened, userProfile?._id]);
@@ -48,7 +43,6 @@ function App() {
           <span className="w-4 h-4 rounded-full bg-indigo-600 animate-bounce"></span>
         </div>
       </div>
-
     )
 
   return (

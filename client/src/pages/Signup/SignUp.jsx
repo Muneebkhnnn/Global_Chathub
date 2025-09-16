@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaUserPlus, FaEnvelope } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { resendVerificationEmailThunk, SignUpUserThunk } from '../../store/slice/user/user.thunk';
+import { SignUpUserThunk } from '../../store/slice/user/user.thunk';
 
 function SignUp() {
   const { isAuthenticated, buttonLoading } = useSelector(state => state.user)
@@ -24,13 +24,11 @@ function SignUp() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(name, value)
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,
@@ -92,7 +90,6 @@ function SignUp() {
     }
 
     const response = await dispatch(SignUpUserThunk(formData))
-    console.log(response)
     
     if (response.payload?.success) {
       setFormData({
@@ -108,13 +105,9 @@ function SignUp() {
     if (response.payload?.errors?.code==="Email_not_verified"){
 
       const unVerifiedEmail=response.payload?.errors?.email
-      console.log(unVerifiedEmail)
 
       navigate('/resend-verification-email')
     }
-
-
-
 
   };
   return (
@@ -131,8 +124,6 @@ function SignUp() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-
-            {/* Full name */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -156,7 +147,6 @@ function SignUp() {
               )}
             </div>
 
-            {/* Username Field */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -180,7 +170,6 @@ function SignUp() {
               )}
             </div>
 
-            {/* email Field */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -204,7 +193,6 @@ function SignUp() {
               )}
             </div>
 
-            {/* Password Field */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -237,7 +225,6 @@ function SignUp() {
               )}
             </div>
 
-            {/* Confirm Password Field */}
             <div className="space-y-1">
               <label className="block">
                 <span className="text-sm font-medium text-gray-700 mb-2 block">
@@ -299,7 +286,6 @@ function SignUp() {
               </div>
             </div>
 
-            {/* Terms and Conditions */}
             <div className="flex items-center">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -335,7 +321,6 @@ function SignUp() {
             </div>
           </form>
 
-          {/* Divider */}
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -345,7 +330,6 @@ function SignUp() {
             </div>
           </div>
 
-          {/* Sign In Link */}
           <div className="text-center mt-6">
             <p className="text-gray-600">
               Already have an account?{' '}

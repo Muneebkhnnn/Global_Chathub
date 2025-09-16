@@ -8,8 +8,6 @@ function SendMessage({ isMobile = false }) {
     const dispatch = useDispatch()
     const { socket } = useSelector(state => state.socketReducer)
     const { selectedUser, buttonLoading, userProfile } = useSelector(state => state.user)
- 
-    //console.log(selectedUser)
 
     const handleSendMessage = async() => {
         if(!message.trim()){
@@ -29,22 +27,17 @@ function SendMessage({ isMobile = false }) {
         setMessage(e.target.value);
         if(!message.trim()) return
 
-        // send "typing" event only once per session of typing
         if (!isTypingRef.current) {
             socket.emit("typing", { to: selectedUser?._id, from: userProfile?._id });
-            console.log("user is sending typing event");
             isTypingRef.current = true;
         }
 
-        // clear previous timeout
         if (typingTimeoutRef.current) {
             clearTimeout(typingTimeoutRef.current);
         }
 
-        // set new timeout
         typingTimeoutRef.current = setTimeout(() => {
             socket.emit("typingStopped", { to: selectedUser?._id, from: userProfile?._id });
-            console.log("user stopped typing");
             isTypingRef.current = false;
         }, 500);
     };

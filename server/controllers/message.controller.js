@@ -15,12 +15,12 @@ const sendMessage = asyncHandler(async (req, res) => {
   }
 
   let conversation = await Conversation.findOne({
-    members: { $all: [senderId, recieverId] }, // whose senderId and recieverId are both in the members array
+    members: { $all: [senderId, recieverId] },
   });
 
   if (!conversation) {
     conversation = await Conversation.create({
-      members: [senderId, recieverId], // if not then create a new conversation and store thier ids
+      members: [senderId, recieverId], 
     });
   }
 
@@ -74,7 +74,7 @@ const getMessages = asyncHandler(async (req, res) => {
     members: { $all: [myId, otherParticipantId] },
   }).populate({
     path: "messages",
-    options: { sort: { createdAt: 1 } }, // sorts messages ascending
+    options: { sort: { createdAt: 1 } }, 
   });
   
   return res

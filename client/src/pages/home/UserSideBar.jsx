@@ -6,14 +6,12 @@ import { logoutUserThunk } from '../../store/slice/user/user.thunk'
 import { useNavigate } from 'react-router-dom'
 import { getOtherUsersThunk } from '../../store/slice/user/user.thunk'
 import { closeSocket } from '../../store/slice/socket/socket.slice'
-import { setSelectedUser } from '../../store/slice/user/user.slice'
 
 function UserSideBar({ isOpen, onClose, isMobile }) {
 
   const [searchValue, setSearchValue] = useState('');
   const [filteredUsers, setfilteredUsers] = useState([]);
   const { otherUsers, userProfile, screenLoading, otherUsersLoading, limit, skip, hasMore, selectedUser } = useSelector(state => state.user)
-  const { socket } = useSelector(state => state.socketReducer)
 
   const Navigate = useNavigate()
   const dispatch = useDispatch()
@@ -21,13 +19,10 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
   const scrollRef = useRef(null);
 
   const handleLogout = async () => {
-    // 1️⃣ Close socket first
     dispatch(closeSocket(userProfile?._id));
 
-    // 2️⃣ Wait until logout thunk clears state
     await dispatch(logoutUserThunk());
 
-    // 3️⃣ Now navigate away
     Navigate('/Login');
   }
 
@@ -35,7 +30,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
 
     if (otherUsers?.length === 0 && skip === 0) {
       (async () => {
-        console.log('first call for other users')
         await dispatch(getOtherUsersThunk(
           {
             limit: limit,
@@ -46,7 +40,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
     }
 
   }, []);
-
 
   const handleProfileEdit = () => {
     Navigate('/edit-profile')
@@ -59,11 +52,9 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
     ) : otherUsers);
   }, [searchValue, otherUsers]);
 
-
   const handleMoreUsers = async () => {
-    if (otherUsersLoading) return; // guard against parallel calls
+    if (otherUsersLoading) return;
     if (!hasMore) return;
-    console.log('➡️ Fetching more users. Current skip:', skip, 'limit:', limit);
     await dispatch(getOtherUsersThunk({ limit, skip }));
 
   }
@@ -73,7 +64,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
 
     const handleScroll = (e) => {
       const target = e.target;
-      // near bottom
       if (target.scrollTop + target.clientHeight >= target.scrollHeight - 5) {
         handleMoreUsers();
       }
@@ -86,9 +76,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
       currentRef.removeEventListener('scroll', handleScroll)
     }
   }, [hasMore, skip, otherUsersLoading])
-
-
-
 
   if (screenLoading)
     return (
@@ -111,8 +98,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
       } 
       bg-gray-800 border-r border-gray-700 flex flex-col h-full min-w-0 flex-shrink-0
     `}>
-
-      {/* Header with logo/title */}
       <div className="p-3 md:p-4 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 md:gap-3">
@@ -122,7 +107,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
             <h1 className="text-base md:text-lg font-semibold text-gray-200 truncate">CHATHUB</h1>
           </div>
 
-          {/* Mobile close button */}
           {isMobile && (
             <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-200 transition-colors">
               <FiX className="w-5 h-5" />
@@ -131,7 +115,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
         </div>
       </div>
 
-      {/* Search */}
       <div className="p-3 md:p-4 border-b border-gray-700 flex-shrink-0">
         <div className="relative">
           <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -145,7 +128,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
         </div>
       </div>
 
-      {/* User List */}
       {otherUsersLoading && otherUsers.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="animate-spin rounded-full h-6 w-6 md:h-8 md:w-8 border-b-2 border-blue-500"></div>
@@ -162,7 +144,7 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
                 onUserSelect={isMobile ? onClose : undefined}
               />
             ))}
-            {/* Loading indicator for pagination */}
+            {/* Loading indicator*/}
             {otherUsersLoading && otherUsers.length > 0 && (
               <div className="flex justify-center py-3 md:py-4">
                 <div className="animate-spin rounded-full h-5 w-5 md:h-6 md:w-6 border-b-2 border-blue-500"></div>
