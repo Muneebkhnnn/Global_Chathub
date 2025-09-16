@@ -47,44 +47,6 @@ function UserSideBar({ isOpen, onClose, isMobile }) {
 
   }, []);
 
-  useEffect(() => {
-    if (!socket) return
-
-    socket.on("messageSent", (data) => {
-      console.log('evnt recieved')
-      console.log(selectedUser?._id)
-      if (data.senderId === userProfile?._id || data.recieverId === userProfile?._id) {
-        (async () => {
-          await dispatch(getOtherUsersThunk({ limit: limit, skip: 0, refresh: true }));
-        })();
-
-      }
-    });
-
-    // socket.on("messageReceived", (data) => {
-    //   console.log('msg recieved evnt recieved')
-    //   if (data.recieverId === userProfile?._id) {
-    //     (async () => {
-    //       await dispatch(getOtherUsersThunk({ limit: limit, skip: 0, refresh: true }));
-    //     })();
-
-    //   }
-    // });
-    // const handleProfileUpdate = (updatedData) => {
-    //   console.log('profile update event fired in usersidebar')
-    //   if (selectedUser && selectedUser?._id === updatedData._id) {
-    //     dispatch(setSelectedUser(updatedData));
-    //   }
-    // };
-
-    // socket.on('profileUpdated', handleProfileUpdate);
-    return () => {
-      //socket.off('profileUpdated')
-      socket.off('messageSent')
-      //socket.off("messageReceived")
-    }
-  }, [socket, userProfile?._id]);
-
 
   const handleProfileEdit = () => {
     Navigate('/edit-profile')

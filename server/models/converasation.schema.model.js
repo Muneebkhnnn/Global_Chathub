@@ -28,6 +28,12 @@ const conversationSchema = new Schema(
         ref:"User"
       },
     },
+
+    hasOpened:{
+      type:Map,
+      of:Boolean,
+      default:{}
+    }
   },
   { timestamps: true }
 );

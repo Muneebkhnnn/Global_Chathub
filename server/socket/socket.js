@@ -43,11 +43,6 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("newUserJoined", username);
   });
 
-  //profile Update event
-  socket.on('profileUpdated',(updatedData)=>{
-    socket.broadcast.emit('profileUpdated',updatedData)
-  })
-
 
   // manual logout event
   socket.on("user:logout", (userId) => {

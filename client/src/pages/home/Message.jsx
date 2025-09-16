@@ -3,22 +3,13 @@ import { useSelector } from 'react-redux'
 
 function Message({ msgDetails, isMobile = false }) {
 
-  const messageRef = useRef(null)
-
   const { userProfile, selectedUser } = useSelector(state => state.user)
   // sender: true if current user sent the message
   const isSender = userProfile?._id === msgDetails?.senderId
 
-  useEffect(() => {
-    if (messageRef.current) {
-      messageRef.current.scrollIntoView({ behavior: "smooth" })
-    }
-  }, []);
-
   return (
     <>
-      <div
-        ref={messageRef}
+      <div       
         className={`flex w-full items-end gap-1.5 md:gap-2 ${isSender ? 'justify-end' : 'justify-start'}`}>
 
         {/* Receiver avatar (left) */}

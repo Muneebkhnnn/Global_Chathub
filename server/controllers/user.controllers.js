@@ -7,6 +7,7 @@ import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { Resend } from "resend";
 import crypto from "crypto";
+import { io } from "../socket/socket.js";
 
 const SignUp = asyncHandler(async (req, res) => {
   const { fullName, username, password, gender, confirmPassword, email } =
@@ -394,7 +395,9 @@ const editProfile = asyncHandler(async (req, res) => {
       },
       { new: true }
     ).select("-password");
-
+    
+    io.emit('profileUpdated', user);
+    
     return res
       .status(200)
       .json(new ApiResponse(200, "user details updated successfully", user));

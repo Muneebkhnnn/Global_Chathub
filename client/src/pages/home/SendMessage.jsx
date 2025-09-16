@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { sendMessageThunk } from '../../store/slice/message/message.thunk'
-
 function SendMessage({ isMobile = false }) {
 
     const inputRef = useRef()
@@ -13,6 +12,10 @@ function SendMessage({ isMobile = false }) {
     //console.log(selectedUser)
 
     const handleSendMessage = async() => {
+        if(!message.trim()){
+            setMessage('')
+            return
+        } 
         await dispatch(sendMessageThunk({ recieverId: selectedUser?._id, message }))
         setMessage('')
     }
@@ -24,6 +27,7 @@ function SendMessage({ isMobile = false }) {
 
     const handleInputChange = (e) => {
         setMessage(e.target.value);
+        if(!message.trim()) return
 
         // send "typing" event only once per session of typing
         if (!isTypingRef.current) {
@@ -54,7 +58,7 @@ function SendMessage({ isMobile = false }) {
 
     return (
         <>
-            <div className={`border-t border-gray-700 ${isMobile ? 'p-3' : 'p-3 md:p-4'} flex-shrink-0`}>
+            <div className={`border-t border-gray-700 ${isMobile ? 'p-3' : 'p-3 md:p-[0.95rem]'} flex-shrink-0`}>
                 <div className="flex gap-2 max-w-full">
                     <input
                         ref={inputRef}

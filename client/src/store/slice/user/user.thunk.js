@@ -153,7 +153,8 @@ export const getprofileThunk = createAsyncThunk(
 
 export const getOtherUsersThunk = createAsyncThunk(
   "users/other-users",
-  async ({ limit, skip,refresh }, { rejectWithValue }) => {
+  async ({ limit, skip, refresh=false }, { rejectWithValue }) => {
+    console.log(`📡 Fetching users: limit=${limit}, skip=${skip}, refresh=${refresh}`);
     try {
       const response = await axiosInstance.get(
         `/users/other-users?limit=${limit}&skip=${skip}`
@@ -202,7 +203,7 @@ export const editProfileThunk = createAsyncThunk(
       formData.append("username", username);
       formData.append("fullName", fullName);
       if (avatar) {
-        formData.append("avatar", avatar); // ✅ File object
+        formData.append("avatar", avatar); // File object
       }
 
       const response = await axiosInstance.patch(
@@ -217,6 +218,7 @@ export const editProfileThunk = createAsyncThunk(
 
       console.log(response);
       toast.success("Profile Updated Successfully");
+      console.log(response.data)
       return response.data;
     } catch (error) {
       const errorOutput = error?.response?.data?.message;

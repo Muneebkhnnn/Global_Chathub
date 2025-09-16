@@ -85,12 +85,7 @@ function EditProfile() {
 
     const response = await dispatch(editProfileThunk(formData))
     console.log(response)
-    if (response.payload?.success) {
-      navigate('/')
-      const userProfile=response.payload?.data
-      socket.emit('profileUpdated',userProfile)
-    }
-    console.log(response)
+    navigate('/')
   }
 
 

@@ -3,7 +3,7 @@ import { Conversation } from "../models/converasation.schema.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
-import { io, getSocketId } from "../socket/socket.js";
+import { io, getSocketId, userSocketMap } from "../socket/socket.js";
 
 const sendMessage = asyncHandler(async (req, res) => {
   const senderId = req.user._id;
@@ -29,12 +29,14 @@ const sendMessage = asyncHandler(async (req, res) => {
     recieverId,
     message,
   });
-
+  const currentTime = new Date();
   if (newMessage) {
     conversation.messages.push(newMessage._id);
-    conversation.lastMessageAt = new Date();
-    conversation.lastMessage.text=message
-    conversation.lastMessage.senderId=senderId
+    conversation.lastMessageAt = currentTime;
+    conversation.lastMessage.text = message;
+    conversation.lastMessage.senderId = senderId;
+    conversation.hasOpened.senderId=true
+    conversation.hasOpened.recieverId=false
     await conversation.save();
   }
 
@@ -42,16 +44,20 @@ const sendMessage = asyncHandler(async (req, res) => {
   const socketId = getSocketId(recieverId);
   io.to(socketId).emit("newMessage", newMessage);
 
-  io.emit("messageSent", {
-    senderId,
-    recieverId,
-  });
+  const data = {
+    savedMessage: newMessage.message,
+    recieverId, 
+    senderId, 
+    lastUpdated: new Date(),
+  };
 
-  // io.emit("messageReceived", {
-  //   senderId,
-  //   recieverId,
-  // });
+  if (userSocketMap[senderId]) {
+    io.to(userSocketMap[senderId]).emit("messageSent", data);
+  }
 
+  if (userSocketMap[recieverId]) {
+    io.to(userSocketMap[recieverId]).emit("messageReceived", data);
+  }
 
   return res.status(200).json(new ApiResponse(200, null, newMessage));
 });
@@ -65,9 +71,11 @@ const getMessages = asyncHandler(async (req, res) => {
   }
 
   let conversation = await Conversation.findOne({
-    members: { $all: [myId, otherParticipantId] }, // whose senderId and recieverId are both in the members array
-  }).populate("messages");
-
+    members: { $all: [myId, otherParticipantId] },
+  }).populate({
+    path: "messages",
+    options: { sort: { createdAt: 1 } }, // sorts messages ascending
+  });
   
   return res
     .status(200)

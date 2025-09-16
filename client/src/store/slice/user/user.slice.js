@@ -25,6 +25,7 @@ const initialState = {
   hasMore: true,
   isVerified: false,
   Error: null,
+  hasOpened: {},
 };
 
 const userSlice = createSlice({
@@ -34,6 +35,113 @@ const userSlice = createSlice({
     setSelectedUser: (state, action) => {
       localStorage.setItem("selectedUser", JSON.stringify(action.payload));
       state.selectedUser = action.payload;
+    },
+
+    setHasOpened: (state, action) => {
+      state.hasOpened = action.payload || {};
+    },
+
+    updateOtherUsers: (state, action) => {
+      let payload = action.payload;
+
+      // If I am sender, update receiver
+      let userIdx = state.otherUsers.findIndex(
+        (user) => user._id === payload.recieverId
+      );
+
+      // If I am receiver, update sender
+      if (userIdx === -1) {
+        userIdx = state.otherUsers.findIndex(
+          (user) => user._id === payload.senderId
+        );
+      }
+
+      console.log(userIdx); // userIdx found
+
+      if (userIdx === -1) return
+
+      let [user] = state.otherUsers.splice(userIdx, 1);
+      console.log(user);
+
+      user.lastUpdated = payload.lastUpdated;
+      user.lastMessage = payload.savedMessage;
+      user.lastMessageSenderId = payload.senderId;
+
+      state.otherUsers.unshift(user);
+
+      if (
+        !(payload.recieverId in state.hasOpened) ||
+        (state.hasOpened[payload.recieverId] === true &&
+          payload.recieverId !== state.selectedUser?._id)
+      ) {
+        // if i am sender i wnt receiverId in hasOpened
+        state.hasOpened[payload.recieverId] = false;
+        console.log("in reciever", state.hasOpened);
+      }
+
+      if (
+        !(payload.senderId in state.hasOpened) ||
+        (state.hasOpened[payload.senderId] === true &&
+          payload.senderId !== state.selectedUser?._id)
+      ) {
+        // if i am receiver i wnt senderId in hasOpened
+        state.hasOpened[payload.senderId] = false;
+        console.log("in sender", state.hasOpened);
+      }
+
+      if (state.selectedUser) {
+        // If I’m actively chatting with the sender (new msg from them)
+        if (state.selectedUser._id === payload.senderId) {
+          state.hasOpened[payload.senderId] = true;
+          state.hasOpened[payload.recieverId] = true;
+        }
+
+        // If I’m actively chatting with the receiver (I just sent msg to them)
+        if (state.selectedUser._id === payload.recieverId) {
+          state.hasOpened[payload.senderId] = true;
+          state.hasOpened[payload.recieverId] = true;
+        }
+      }
+
+      console.log(state.otherUsers);
+    },
+
+    markAsOpened: (state, action) => {
+      let selectedId = action.payload._id;
+      if (
+        selectedId in state.hasOpened &&
+        state.hasOpened[selectedId] === false
+      ) {
+        state.hasOpened[selectedId] = true;
+      }
+    },
+
+
+
+    updateUserProfile: (state, action) => {
+      let updatedUser = action.payload;
+      if (updatedUser._id === state.userProfile._id) {
+        //update my own profile
+        state.userProfile = updatedUser;
+      } else {
+        //this is SOMEONE ELSE → update them in my otherUsers list
+        state.otherUsers = state.otherUsers.map((u) =>
+          u._id === updatedUser._id
+            ? {
+                ...u,
+                username: updatedUser.username,
+                fullName: updatedUser.fullName,
+                avatar: updatedUser.avatar,
+              }
+            : u
+        );
+      }
+
+      if (state.selectedUser._id === updatedUser._id) {
+        state.selectedUser.username = updatedUser.username;
+        state.selectedUser.fullName = updatedUser.fullName;
+        state.selectedUser.avatar = updatedUser.avatar;
+      }
     },
   },
 
@@ -131,6 +239,7 @@ const userSlice = createSlice({
       })
       .addCase(logoutUserThunk.fulfilled, (state, action) => {
         localStorage.removeItem("selectedUser");
+        state.hasOpened = {};
         state.userProfile = null;
         state.otherUsers = [];
         state.skip = 0;
@@ -174,10 +283,12 @@ const userSlice = createSlice({
         const isRefresh = action.meta.arg.refresh; // Check for refresh flag
 
         if (isRefresh) {
+           // ✅ REFRESH MODE: Replace entire list with fresh data
           state.otherUsers = incoming;
           state.skip = incoming.length;
           state.hasMore = incoming.length >= state.limit;
         } else {
+           // ✅ PAGINATION MODE: Append new users to existing list
           // Build a Set of existing IDs for fast duplicate detection
           const existingIds = new Set(state.otherUsers.map((u) => u._id));
 
@@ -224,7 +335,6 @@ const userSlice = createSlice({
         console.log("inside edit:", action.payload);
         state.userProfile = action.payload?.data;
         state.buttonLoading = false;
-        state.isAuthenticated = true;
         state.otherUsers = [];
         state.skip = 0;
         state.hasMore = true;
@@ -236,6 +346,13 @@ const userSlice = createSlice({
   },
 });
 
-export const { setSelectedUser, resetOtherUsers } = userSlice.actions;
+export const {
+  setSelectedUser,
+  updateOtherUsers,
+  updateUserProfile,
+  markAsOpened,
+  setHasOpened,
+} = userSlice.actions;
 
+export const userInitialState = initialState;
 export default userSlice.reducer;
