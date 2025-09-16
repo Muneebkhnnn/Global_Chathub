@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { getprofileThunk } from './store/slice/user/user.thunk';
@@ -48,6 +49,7 @@ function App() {
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
+      <Analytics />
     </>
   )
 }
