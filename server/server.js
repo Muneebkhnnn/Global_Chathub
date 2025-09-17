@@ -9,13 +9,23 @@ import cookieParser from "cookie-parser";
 
 const PORT= process.env.PORT || 8000;
 
+const allowedOrigins = [
+  'https://global-chathub.vercel.app',
+  'https://globalchathub.dev',
+  'https://www.globalchathub.dev'
+];
 
-app.use(
-    cors({
-        origin: process.env.CLIENT_URL , 
-        credentials: true 
-    })
-);
+app.use(cors({
+  origin: function (origin, callback) {
+    // Check if the requested origin is in our allowed list
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true, // If you are using cookies or sessions
+}));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
