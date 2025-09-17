@@ -72,7 +72,7 @@ const SignUp = asyncHandler(async (req, res) => {
 
   try {
     const emailResult = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "noreply@globalchathub.dev",
       to: user.email,
       subject: "Please Verify your email",
       html: `
@@ -160,7 +160,7 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
 
   try {
     const emailResult = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "noreply@globalchathub.dev",
       to: user.email,
       subject: "Please Verify your email",
       html: `
@@ -395,7 +395,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const emailResult = await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "noreply@globalchathub.dev",
       to: user.email,
       subject: "Forgot password",
       html: `
