@@ -7,74 +7,71 @@ import SendMessage from './SendMessage'
 import TypingIndicator from '../../components/TypingIndicator'
 
 function MessageContainer({ isMobile, onMenuClick }) {
-
   const typingRef = useRef()
+  const bottomRef = useRef(null)
   const dispatch = useDispatch()
-  const [typingStatus, settypingStatus] = useState(false);
-  const { selectedUser } = useSelector(state => state.user)
+
+  const [typingStatus, setTypingStatus] = useState(false)
+  const { selectedUser, userProfile } = useSelector(state => state.user)
   const { messages, messagesLoading } = useSelector(state => state.message)
   const { onlineUsers, socket } = useSelector(state => state.socketReducer)
 
   const isUserOnline = onlineUsers?.includes(selectedUser?._id)
 
-  const { userProfile } = useSelector(state => state.user);
-
   const filteredMessages = messages?.filter(
     msg =>
       (msg.senderId === userProfile?._id && msg.recieverId === selectedUser?._id) ||
       (msg.senderId === selectedUser?._id && msg.recieverId === userProfile?._id)
-  );
-  const bottomRef = useRef(null);
+  )
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [filteredMessages]); 
-
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [filteredMessages])
 
   useEffect(() => {
     if (selectedUser?._id) {
       dispatch(getMessageThunk({ recieverId: selectedUser?._id }))
     }
-
   }, [selectedUser, dispatch])
 
   useEffect(() => {
-
     if (!socket || !selectedUser?._id) return
 
-
     if (typingStatus && typingRef.current) {
-      typingRef.current.scrollIntoView({ behavior: "smooth" });
+      typingRef.current.scrollIntoView({ behavior: 'smooth' })
     }
 
-    const handleTyping = (senderId) => {
-      if (senderId === selectedUser?._id) {
-        settypingStatus(true);
-      }
+    const handleTyping = senderId => {
+      if (senderId === selectedUser?._id) setTypingStatus(true)
     }
 
-    const typingStopped = (senderId) => {
-      if (senderId === selectedUser?._id) {
-        settypingStatus(false);
-      }
+    const typingStopped = senderId => {
+      if (senderId === selectedUser?._id) setTypingStatus(false)
     }
 
-    socket.on("typing", handleTyping)
-    socket.on("typingStopped", typingStopped)
+    socket.on('typing', handleTyping)
+    socket.on('typingStopped', typingStopped)
 
     return () => {
       socket.off('typing', handleTyping)
       socket.off('typingStopped', typingStopped)
-    };
-  }, [socket, selectedUser, typingStatus]);
-
+    }
+  }, [socket, selectedUser, typingStatus])
 
   return (
-    <div className={`relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 ${isMobile ? 'h-screen' : 'h-full'}`}>
+    <div
+      className={`relative flex flex-col bg-gray-900 text-white min-w-0 ${
+        isMobile ? 'h-screen' : 'h-full'
+      }`}
+    >
       {selectedUser ? (
         <>
-          {/* Fixed Header - Always visible */}
-          <div className={`border-b border-gray-700 ${isMobile ? 'p-2' : 'p-3'} flex-shrink-0 bg-gray-900 z-10`}>
+          {/* Header (fixed at top) */}
+          <div
+            className={`border-b border-gray-700 ${
+              isMobile ? 'p-2' : 'p-3'
+            } flex-shrink-0 bg-gray-900 z-10`}
+          >
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -84,7 +81,6 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   <FiMenu className="w-5 h-5" />
                 </button>
               )}
-
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden bg-gray-600 flex-shrink-0">
                 <img
                   src={selectedUser?.avatar}
@@ -93,29 +89,37 @@ function MessageContainer({ isMobile, onMenuClick }) {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="font-semibold text-sm md:text-base text-gray-200 truncate">{selectedUser?.username}</h2>
-                {isUserOnline ?
-                  <p className="text-xs md:text-xs text-green-400">Online</p> :
-                  <p className="text-xs md:text-xs text-red-400">Offline</p>
-                }
+                <h2 className="font-semibold text-sm md:text-base text-gray-200 truncate">
+                  {selectedUser?.username}
+                </h2>
+                {isUserOnline ? (
+                  <p className="text-xs text-green-400">Online</p>
+                ) : (
+                  <p className="text-xs text-red-400">Offline</p>
+                )}
               </div>
             </div>
           </div>
 
+          {/* Loading state */}
           {messagesLoading ? (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-10">
               <div className="flex space-x-2">
-                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]"></span>
-                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.15s]"></span>
-                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce"></span>
+                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce" />
               </div>
             </div>
           ) : (
             <>
-              {/* Messages Area - Scrollable with constrained height on mobile */}
-              <div className={`flex-1 ${isMobile ? 'p-2 min-h-0' : 'p-3 md:p-4'} overflow-y-auto scroll-smooth scrollbar-hide`}>
-                <div className="space-y-3 md:space-y-4 max-w-full min-h-full flex flex-col justify-end">
-                  {filteredMessages?.map((msgDetails) => (
+              {/* Messages (scrollable middle) */}
+              <div
+                className={`flex-1 overflow-y-auto scroll-smooth scrollbar-hide ${
+                  isMobile ? 'p-2' : 'p-3 md:p-4'
+                }`}
+              >
+                <div className="space-y-3 md:space-y-4 flex flex-col justify-end min-h-full">
+                  {filteredMessages?.map(msgDetails => (
                     <Message
                       key={msgDetails?._id}
                       msgDetails={msgDetails}
@@ -125,13 +129,13 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   <div ref={bottomRef} />
                 </div>
                 {typingStatus && (
-                  <div
-                    ref={typingRef}>
+                  <div ref={typingRef}>
                     <TypingIndicator isMobile={isMobile} />
                   </div>
                 )}
               </div>
-              {/* Fixed Send Message Input - Always visible on mobile */}
+
+              {/* Send Message (fixed at bottom) */}
               <div className={`flex-shrink-0 ${isMobile ? 'bg-gray-900' : ''}`}>
                 <SendMessage isMobile={isMobile} />
               </div>
@@ -140,6 +144,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
         </>
       ) : (
         <>
+          {/* No user selected */}
           <div className="border-b border-gray-700 p-3 md:p-5 flex-shrink-0">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
@@ -151,26 +156,27 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   <FiMenu className="w-5 h-5" />
                 </button>
               )}
-              <h2 className="font-semibold text-sm md:text-base text-gray-300 truncate">Select a conversation</h2>
+              <h2 className="font-semibold text-sm md:text-base text-gray-300 truncate">
+                Select a conversation
+              </h2>
             </div>
           </div>
 
-          {/* Empty state */}
           <div className="flex flex-col items-center justify-center flex-1 text-gray-500 p-3">
             <div className="text-center">
               <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <span className="text-xl md:text-2xl">💬</span>
               </div>
-              <h3 className="text-base md:text-lg font-medium mb-2">No messages yet</h3>
-              <p className="text-sm md:text-sm">Open the menu to start chatting</p>
+              <h3 className="text-base md:text-lg font-medium mb-2">
+                No messages yet
+              </h3>
+              <p className="text-sm">Open the menu to start chatting</p>
             </div>
           </div>
         </>
-      )
-      }
+      )}
     </div>
   )
 }
-
 
 export default MessageContainer
