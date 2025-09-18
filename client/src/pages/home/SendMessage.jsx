@@ -16,6 +16,13 @@ function SendMessage({ isMobile = false }) {
         } 
         await dispatch(sendMessageThunk({ recieverId: selectedUser?._id, message }))
         setMessage('')
+        
+        // ✅ Maintain focus after sending message
+        if (inputRef.current) {
+            setTimeout(() => {
+                inputRef.current.focus()
+            }, 100)
+        }
     }
 
     const [message, setMessage] = useState('');
@@ -51,7 +58,10 @@ function SendMessage({ isMobile = false }) {
 
     return (
         <>
-            <div className={`border-t border-gray-700 ${isMobile ? 'p-3' : 'p-3 md:p-[0.95rem]'} flex-shrink-0`}>
+            {/* ✅ FIXED INPUT - Always visible at bottom on mobile */}
+            <div className={`border-t border-gray-700 bg-gray-900 
+                           ${isMobile ? 'fixed bottom-0 left-0 right-0 p-3 z-20' : 'p-3 md:p-[0.95rem]'} 
+                           flex-shrink-0`}>
                 <div className="flex gap-2 max-w-full">
                     <input
                         ref={inputRef}
@@ -63,6 +73,12 @@ function SendMessage({ isMobile = false }) {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
                                 handleSendMessage()
+                                // ✅ Maintain focus after Enter key
+                                setTimeout(() => {
+                                    if (inputRef.current) {
+                                        inputRef.current.focus()
+                                    }
+                                }, 100)
                             }
                         }}
                         className={`flex-1 bg-gray-700 text-gray-200 placeholder-gray-400 
