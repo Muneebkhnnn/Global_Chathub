@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { sendMessageThunk } from '../../store/slice/message/message.thunk'
+
 function SendMessage({ isMobile = false }) {
 
     const inputRef = useRef()
@@ -14,8 +15,15 @@ function SendMessage({ isMobile = false }) {
             setMessage('')
             return
         } 
+        
         await dispatch(sendMessageThunk({ recieverId: selectedUser?._id, message }))
         setMessage('')
+        
+        setTimeout(() => {
+            if (inputRef.current) {
+                inputRef.current.focus()
+            }
+        }, 100) 
     }
 
     const [message, setMessage] = useState('');
