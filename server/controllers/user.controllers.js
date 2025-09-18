@@ -66,7 +66,7 @@ const SignUp = asyncHandler(async (req, res) => {
   const verificationtoken = crypto.randomBytes(32).toString("hex");
 
   user.verificationToken = verificationtoken;
-  user.verificationTokenExpires = Date.now() + 10 * 60 * 1000; 
+  user.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -87,11 +87,11 @@ const SignUp = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
-    console.log('✅ Email sent successfully!');
-    console.log('📧 Email ID:', emailResult.id);
-    console.log('📧 Email Result:', emailResult);
+    console.log("✅ Email sent successfully!");
+    console.log("📧 Email ID:", emailResult.id);
+    console.log("📧 Email Result:", emailResult);
   } catch (error) {
-    console.log('email sending failed '+error.message)
+    console.log("email sending failed " + error.message);
     console.error("Email sending failed:", error);
     throw new ApiError(
       500,
@@ -157,7 +157,7 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
 
   const verificationtoken = crypto.randomBytes(32).toString("hex");
   user.verificationToken = verificationtoken;
-  user.verificationTokenExpires = Date.now() + 15 * 60 * 1000; 
+  user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
   await user.save();
 
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -179,12 +179,12 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
-    console.log("CLIENT_URL is:", process.env.CLIENT_URL); 
-    console.log('✅ Email sent successfully!');
-    console.log('📧 Email ID:', emailResult.id);
-    console.log('📧 Email Result:', emailResult);
+    console.log("CLIENT_URL is:", process.env.CLIENT_URL);
+    console.log("✅ Email sent successfully!");
+    console.log("📧 Email ID:", emailResult.id);
+    console.log("📧 Email Result:", emailResult);
   } catch (error) {
-    console.log('email sending failed '+error.message)
+    console.log("email sending failed " + error.message);
     console.error("Email sending failed:", error);
     throw new ApiError(
       500,
@@ -233,14 +233,14 @@ const login = asyncHandler(async (req, res) => {
   };
 
   const token = jwt.sign(tokenData, process.env.JWT_SECRET_KEY, {
-    expiresIn: "1d", 
+    expiresIn: "1d",
   });
 
   const cookieOptions = {
     expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    httpOnly: true, 
-    secure: true, 
-    sameSite: "None", 
+    httpOnly: true,
+    secure: true,
+    sameSite: "None",
   };
 
   const loggedInUser = await User.findById(user._id).select("-password");
@@ -264,8 +264,8 @@ const getProfile = asyncHandler(async (req, res) => {
 
 const logout = asyncHandler(async (req, res) => {
   const cookieOptions = {
-    expires: new Date(Date.now()), 
-    httpOnly: true, 
+    expires: new Date(Date.now()),
+    httpOnly: true,
     secure: true,
     sameSite: "None",
   };
@@ -305,8 +305,8 @@ const otherUsers = asyncHandler(async (req, res) => {
           {
             $project: {
               lastMessageAt: 1,
-              "lastMessage.text": 1 ,
-              "lastMessage.senderId":1
+              "lastMessage.text": 1,
+              "lastMessage.senderId": 1,
             },
           },
         ],
@@ -322,21 +322,27 @@ const otherUsers = asyncHandler(async (req, res) => {
           ],
         },
         lastMessage: {
-          $ifNull: [{ $arrayElemAt: ["$conversation.lastMessage.text", 0] }, ""],
+          $ifNull: [
+            { $arrayElemAt: ["$conversation.lastMessage.text", 0] },
+            "",
+          ],
         },
-        lastMessageSenderId:{
-          $ifNull: [{ $arrayElemAt: ["$conversation.lastMessage.senderId", 0] }, ""],
-        }
+        lastMessageSenderId: {
+          $ifNull: [
+            { $arrayElemAt: ["$conversation.lastMessage.senderId", 0] },
+            "",
+          ],
+        },
       },
     },
     {
       $project: {
-        fullName:1,
+        fullName: 1,
         username: 1,
-        avatar: 1, 
-        email: 1, 
+        avatar: 1,
+        email: 1,
         lastMessage: 1,
-        lastMessageSenderId:1,
+        lastMessageSenderId: 1,
         lastUpdated: 1,
       },
     },
@@ -351,9 +357,6 @@ const otherUsers = asyncHandler(async (req, res) => {
 const editProfile = asyncHandler(async (req, res) => {
   const { username, fullName } = req.body;
 
-  const avatarLocalPath = req.file?.path;
-  let avatar;
-
   try {
     if ([username, fullName].some((field) => field?.trim() === "")) {
       throw new ApiError(400, "All fields are required");
@@ -361,9 +364,16 @@ const editProfile = asyncHandler(async (req, res) => {
 
     const updatedData = { username, fullName };
 
-    if (avatarLocalPath) {
-      avatar = await uploadOnCloudinary(avatarLocalPath);
-      updatedData.avatar = avatar.url;
+    // Check if file exists in memory (from multer memoryStorage)
+    if (req.file) {
+      // Upload to Cloudinary using buffer (not file path)
+      const avatar = await uploadOnCloudinary(req.file.buffer, {
+        resource_type: "image",
+      });
+
+      if (avatar) {
+        updatedData.avatar = avatar.url;
+      }
     }
 
     const user = await User.findByIdAndUpdate(
@@ -373,18 +383,17 @@ const editProfile = asyncHandler(async (req, res) => {
       },
       { new: true }
     ).select("-password");
-    
-    io.emit('profileUpdated', user);
-    
+
+    io.emit("profileUpdated", user);
+
     return res
       .status(200)
-      .json(new ApiResponse(200, "user details updated successfully", user));
+      .json(new ApiResponse(200, "User details updated successfully", user));
   } catch (error) {
     if (avatar && avatar.public_id) {
       await deleteFromCloudinary(avatar.public_id);
     }
-
-    throw new ApiError(500, "failed to update Profile");
+    throw new ApiError(500, "Failed to update profile: " + error.message);
   }
 });
 
@@ -398,9 +407,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
 
   const resetPasswordToken = crypto.randomBytes(32).toString("hex");
   user.resetPasswordToken = resetPasswordToken;
-  user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; 
+  user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
-  console.log('client url'+process.env.CLIENT_URL)
+  console.log("client url" + process.env.CLIENT_URL);
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const emailResult = await resend.emails.send({
