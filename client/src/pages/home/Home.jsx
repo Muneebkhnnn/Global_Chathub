@@ -142,7 +142,7 @@ function Home() {
 
 
   return (
-    <div className='flex h-screen relative overflow-hidden'>
+    <div className='flex h-screen relative overflow-hidden bg-gray-900'>
       {isMobile ? (
         <>
           <UserSideBar

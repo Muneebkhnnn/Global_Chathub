@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Message from './Message'
+import SendMessage from './SendMessage'
+import TypingIndicator from '../../components/TypingIndicator'
+import { useSelector, useDispatch } from 'react-redux'
+import { getMessagesThunk } from '../../store/slice/message/message.thunk'
 import { FiMenu } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMessageThunk } from '../../store/slice/message/message.thunk'
@@ -71,11 +75,11 @@ function MessageContainer({ isMobile, onMenuClick }) {
 
   return (
     <>
-      <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full">
+      <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full overflow-hidden">
       {selectedUser ? (
         <>
           {/* ✅ FIXED HEADER - Always visible at top */}
-          <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0 sticky top-0 bg-gray-900 z-10">
+          <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0 bg-gray-900 z-10">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -115,7 +119,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
             <>
               {/* ✅ SCROLLABLE MESSAGES AREA - Fills space between fixed header and input */}
               <div 
-                className={`flex-1 p-3 md:p-4 overflow-y-auto scroll-smooth scrollbar-hide min-h-0 
+                className={`flex-1 p-3 md:p-4 overflow-y-auto scroll-smooth scrollbar-hide min-h-0 max-h-full
                            ${isMobile ? 'pb-20' : ''}`}
               >
                 <div className="space-y-3 md:space-y-4 max-w-full min-h-full flex flex-col justify-end">
