@@ -150,7 +150,7 @@ npm start
 ### **5. Access the Application**
 - **Frontend:** http://localhost:5173
 - **Backend:** http://localhost:3000
-- **API Docs:** http://localhost:3000/api/v1
+
 
 ## 📱 Usage Guide
 
