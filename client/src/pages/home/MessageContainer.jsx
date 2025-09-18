@@ -78,8 +78,8 @@ function MessageContainer({ isMobile, onMenuClick }) {
       <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full overflow-hidden">
       {selectedUser ? (
         <>
-          {/* ✅ FIXED HEADER - Always visible at top */}
-          <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0 bg-gray-900 z-10">
+          {/* ✅ ABSOLUTELY POSITIONED HEADER - Completely fixed at top */}
+          <div className="absolute top-0 left-0 right-0 border-b border-gray-700 p-3 md:p-3 bg-gray-900 z-20">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -108,7 +108,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
           </div>
 
           {messagesLoading ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-10">
+            <div className="absolute top-16 left-0 right-0 bottom-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-10">
               <div className="flex space-x-2">
                 <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]"></span>
                 <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.15s]"></span>
@@ -119,8 +119,8 @@ function MessageContainer({ isMobile, onMenuClick }) {
             <>
               {/* ✅ SCROLLABLE MESSAGES AREA - Fills space between fixed header and input */}
               <div 
-                className={`flex-1 p-3 md:p-4 overflow-y-auto scroll-smooth scrollbar-hide min-h-0 max-h-full
-                           ${isMobile ? 'pb-20' : ''}`}
+                className={`flex-1 overflow-y-auto scroll-smooth scrollbar-hide min-h-0 max-h-full
+                           ${isMobile ? 'pt-16 p-3 pb-20' : 'pt-16 p-3 md:p-4'}`}
               >
                 <div className="space-y-3 md:space-y-4 max-w-full min-h-full flex flex-col justify-end">
                   {filteredMessages?.map((msgDetails) => (
@@ -151,7 +151,8 @@ function MessageContainer({ isMobile, onMenuClick }) {
         </>
       ) : (
         <>
-          <div className="border-b border-gray-700 p-3 md:p-5 flex-shrink-0">
+          {/* ✅ ABSOLUTELY POSITIONED HEADER - For "no conversation" state */}
+          <div className="absolute top-0 left-0 right-0 border-b border-gray-700 p-3 md:p-5 bg-gray-900 z-20">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -167,7 +168,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
           </div>
 
           {/* Empty state */}
-          <div className="flex flex-col items-center justify-center flex-1 text-gray-500 p-3">
+          <div className="flex flex-col items-center justify-center flex-1 text-gray-500 p-3 pt-20">
             <div className="text-center">
               <div className="w-12 h-12 md:w-16 md:h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
                 <span className="text-xl md:text-2xl">💬</span>
