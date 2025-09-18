@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Message from './Message'
 import { FiMenu } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
@@ -7,6 +7,7 @@ import SendMessage from './SendMessage'
 import TypingIndicator from '../../components/TypingIndicator'
 
 function MessageContainer({ isMobile, onMenuClick }) {
+
   const typingRef = useRef()
   const dispatch = useDispatch()
   const [typingStatus, settypingStatus] = useState(false);
@@ -18,33 +19,29 @@ function MessageContainer({ isMobile, onMenuClick }) {
 
   const { userProfile } = useSelector(state => state.user);
 
-  const filteredMessages = useMemo(() => 
-    messages?.filter(
-      msg =>
-        (msg.senderId === userProfile?._id && msg.recieverId === selectedUser?._id) ||
-        (msg.senderId === selectedUser?._id && msg.recieverId === userProfile?._id)
-    ),
-    [messages, userProfile?._id, selectedUser?._id]
+  const filteredMessages = messages?.filter(
+    msg =>
+      (msg.senderId === userProfile?._id && msg.recieverId === selectedUser?._id) ||
+      (msg.senderId === selectedUser?._id && msg.recieverId === userProfile?._id)
   );
-  
   const bottomRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-    
-    return () => clearTimeout(timer);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [filteredMessages]); 
+
 
   useEffect(() => {
     if (selectedUser?._id) {
       dispatch(getMessageThunk({ recieverId: selectedUser?._id }))
     }
+
   }, [selectedUser, dispatch])
 
   useEffect(() => {
+
     if (!socket || !selectedUser?._id) return
+
 
     if (typingStatus && typingRef.current) {
       typingRef.current.scrollIntoView({ behavior: "smooth" });
@@ -71,12 +68,12 @@ function MessageContainer({ isMobile, onMenuClick }) {
     };
   }, [socket, selectedUser, typingStatus]);
 
+
   return (
-    <div className={`relative flex flex-col bg-gray-900 text-white min-w-0 ${isMobile ? 'h-screen' : 'h-full'}`}>
+    <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full">
       {selectedUser ? (
         <>
-          {/* Fixed Header - Always visible */}
-          <div className={`border-b border-gray-700 p-2 flex-shrink-0 bg-gray-900 z-10 ${isMobile ? 'sticky top-0' : ''}`}>
+          <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0">
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -105,7 +102,7 @@ function MessageContainer({ isMobile, onMenuClick }) {
           </div>
 
           {messagesLoading ? (
-            <div className="flex-1 flex items-center justify-center bg-gray-900 bg-opacity-80 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-80 z-10">
               <div className="flex space-x-2">
                 <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.3s]"></span>
                 <span className="w-4 h-4 rounded-full bg-blue-400 animate-bounce [animation-delay:-0.15s]"></span>
@@ -114,8 +111,8 @@ function MessageContainer({ isMobile, onMenuClick }) {
             </div>
           ) : (
             <>
-              {/* Messages Area - Scrollable with constrained height */}
-              <div className={`flex-1 overflow-y-auto scroll-smooth scrollbar-hide ${isMobile ? 'p-2' : 'p-3 md:p-4'}`}>
+              {/* Messages Area */}
+              <div className="flex-1 p-3 md:p-4 overflow-y-auto scroll-smooth scrollbar-hide min-h-0">
                 <div className="space-y-3 md:space-y-4 max-w-full min-h-full flex flex-col justify-end">
                   {filteredMessages?.map((msgDetails) => (
                     <Message
@@ -127,16 +124,13 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   <div ref={bottomRef} />
                 </div>
                 {typingStatus && (
-                  <div ref={typingRef}>
+                  <div
+                    ref={typingRef}>
                     <TypingIndicator isMobile={isMobile} />
                   </div>
                 )}
               </div>
-              
-              {/* Fixed Send Message Input - Always visible */}
-              <div className={`flex-shrink-0 ${isMobile ? 'sticky bottom-0 bg-gray-900' : ''}`}>
-                <SendMessage isMobile={isMobile} />
-              </div>
+              <SendMessage isMobile={isMobile} />
             </>
           )}
         </>
@@ -173,5 +167,6 @@ function MessageContainer({ isMobile, onMenuClick }) {
     </div>
   )
 }
+
 
 export default MessageContainer
