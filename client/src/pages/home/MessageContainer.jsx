@@ -2,13 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import Message from './Message'
 import SendMessage from './SendMessage'
 import TypingIndicator from '../../components/TypingIndicator'
-import { useSelector, useDispatch } from 'react-redux'
-import { getMessagesThunk } from '../../store/slice/message/message.thunk'
 import { FiMenu } from 'react-icons/fi'
 import { useDispatch, useSelector } from 'react-redux'
 import { getMessageThunk } from '../../store/slice/message/message.thunk'
-import SendMessage from './SendMessage'
-import TypingIndicator from '../../components/TypingIndicator'
 
 function MessageContainer({ isMobile, onMenuClick }) {
 

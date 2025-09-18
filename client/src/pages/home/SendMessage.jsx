@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { sendMessageThunk } from '../../store/slice/message/message.thunk'
+
 function SendMessage({ isMobile = false }) {
 
     const inputRef = useRef()
