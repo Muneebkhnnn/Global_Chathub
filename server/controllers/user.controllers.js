@@ -87,7 +87,11 @@ const SignUp = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
+    console.log('✅ Email sent successfully!');
+    console.log('📧 Email ID:', emailResult.id);
+    console.log('📧 Email Result:', emailResult);
   } catch (error) {
+    console.log('email sending failed '+error.message)
     console.error("Email sending failed:", error);
     throw new ApiError(
       500,
@@ -175,7 +179,12 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
               <p>If you didn't request this, please ignore this email.</p>
             `,
     });
+    console.log("CLIENT_URL is:", process.env.CLIENT_URL); 
+    console.log('✅ Email sent successfully!');
+    console.log('📧 Email ID:', emailResult.id);
+    console.log('📧 Email Result:', emailResult);
   } catch (error) {
+    console.log('email sending failed '+error.message)
     console.error("Email sending failed:", error);
     throw new ApiError(
       500,
@@ -391,7 +400,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordToken = resetPasswordToken;
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; 
   await user.save();
-
+  console.log('client url'+process.env.CLIENT_URL)
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const emailResult = await resend.emails.send({
