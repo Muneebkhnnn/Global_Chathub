@@ -70,10 +70,11 @@ function MessageContainer({ isMobile, onMenuClick }) {
 
 
   return (
-    <div className="relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 h-full">
+    <div className={`relative flex-1 flex flex-col bg-gray-900 text-white min-w-0 ${isMobile ? 'h-screen' : 'h-full'}`}>
       {selectedUser ? (
         <>
-          <div className="border-b border-gray-700 p-3 md:p-3 flex-shrink-0">
+          {/* Fixed Header - Always visible */}
+          <div className={`border-b border-gray-700 ${isMobile ? 'p-2' : 'p-3'} flex-shrink-0 bg-gray-900 z-10`}>
             <div className="flex items-center gap-2 md:gap-3">
               {isMobile && (
                 <button
@@ -111,8 +112,8 @@ function MessageContainer({ isMobile, onMenuClick }) {
             </div>
           ) : (
             <>
-              {/* Messages Area */}
-              <div className="flex-1 p-3 md:p-4 overflow-y-auto scroll-smooth scrollbar-hide min-h-0">
+              {/* Messages Area - Scrollable with constrained height on mobile */}
+              <div className={`flex-1 ${isMobile ? 'p-2 min-h-0' : 'p-3 md:p-4'} overflow-y-auto scroll-smooth scrollbar-hide`}>
                 <div className="space-y-3 md:space-y-4 max-w-full min-h-full flex flex-col justify-end">
                   {filteredMessages?.map((msgDetails) => (
                     <Message
@@ -130,7 +131,10 @@ function MessageContainer({ isMobile, onMenuClick }) {
                   </div>
                 )}
               </div>
-              <SendMessage isMobile={isMobile} />
+              {/* Fixed Send Message Input - Always visible on mobile */}
+              <div className={`flex-shrink-0 ${isMobile ? 'bg-gray-900' : ''}`}>
+                <SendMessage isMobile={isMobile} />
+              </div>
             </>
           )}
         </>
