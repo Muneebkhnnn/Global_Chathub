@@ -164,7 +164,7 @@ export const resendVerificationEmailThunk = createAsyncThunk(
         }
       );
       toast.success(
-        "Verification email sent successfully! Please check your email."
+        "Verification email sent successfully! It may take few mins. Please check your email."
       );
       return response.data;
     } catch (error) {

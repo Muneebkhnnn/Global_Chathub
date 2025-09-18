@@ -364,9 +364,7 @@ const editProfile = asyncHandler(async (req, res) => {
 
     const updatedData = { username, fullName };
 
-    // Check if file exists in memory (from multer memoryStorage)
     if (req.file) {
-      // Upload to Cloudinary using buffer (not file path)
       const avatar = await uploadOnCloudinary(req.file.buffer, {
         resource_type: "image",
       });
