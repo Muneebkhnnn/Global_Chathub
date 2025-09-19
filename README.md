@@ -104,8 +104,8 @@ CLOUDINARY_CLOUD_NAME="your-cloud-name"
 CLOUDINARY_API_KEY="your-api-key"
 CLOUDINARY_API_SECRET="your-api-secret"
 
-# Resend (Email Service)
-RESEND_API_KEY="your-resend-api-key"
+# Brevo (Email Service)
+BREVO="your-brevo-api-key" 
 FROM_EMAIL="noreply@yourdomain.com"
 
 # Server

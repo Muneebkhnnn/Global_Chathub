@@ -5,7 +5,6 @@ import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { deleteFromCloudinary } from "../utils/Cloudinary.js";
-import { Resend } from "resend";
 import {
   TransactionalEmailsApi,
   SendSmtpEmail,
@@ -80,7 +79,6 @@ const SignUp = asyncHandler(async (req, res) => {
     process.env.BREVO_API_KEY
   );
 
-  // Construct the email object
   const emailContent = new SendSmtpEmail({
     sender: {
       email: "noreply@globalchathub.dev",
@@ -137,7 +135,6 @@ const SignUp = asyncHandler(async (req, res) => {
     console.log("Verification email sent successfully!", response.body);
   } catch (error) {
     console.error("Email sending failed:", error);
-    // Don't expose the specific error to the user for security
     throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
@@ -208,7 +205,6 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
     process.env.BREVO_API_KEY
   );
 
-  // Construct the email object
   const emailContent = new SendSmtpEmail({
     sender: {
       email: "noreply@globalchathub.dev",
@@ -484,40 +480,12 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  console.log("client url" + process.env.CLIENT_URL);
-
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  try {
-    const emailResult = await resend.emails.send({
-      from: "noreply@globalchathub.dev",
-      to: user.email,
-      subject: "Forgot password",
-      html: `
-              <h2>Forgot Password</h2>
-              <p>Hello ${user.username},</p>
-              <p>Click the button below to Reset your password:</p>
-              <a href="${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}" 
-                 style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                 Reset Password
-              </a>
-              <p>This link will expire in 10 minutes.</p>
-              <p>If you didn't request this, please ignore this email.</p>
-            `,
-    });
-  } catch (error) {
-    throw new ApiError(
-      500,
-      "Something went wrong while sending email: " + error.message
-    );
-  }
-
-   const apiInstance = new TransactionalEmailsApi();
+  const apiInstance = new TransactionalEmailsApi();
   apiInstance.setApiKey(
     TransactionalEmailsApiApiKeys.apiKey,
     process.env.BREVO_API_KEY
   );
 
-  // Construct the email object
   const emailContent = new SendSmtpEmail({
     sender: {
       email: "noreply@globalchathub.dev",
@@ -527,7 +495,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
       email: user.email,
       name: user.username,
     },
-    subject: "Forget Password", 
+    subject: "Forget Password",
     htmlContent: `
     <!DOCTYPE html>
     <html>
@@ -571,10 +539,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
 
   try {
     const response = await apiInstance.sendTransacEmail(emailContent);
-    console.log("Verification email sent successfully!",response.body);
+    console.log("Verification email sent successfully!", response.body);
   } catch (error) {
     console.error("Email sending failed:", error);
-    // Don't expose the specific error to the user for security
     throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 

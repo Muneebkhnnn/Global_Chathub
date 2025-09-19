@@ -17,6 +17,7 @@
   "license": "ISC",
   "description": "Real-time chat application with Socket.io and React",
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
