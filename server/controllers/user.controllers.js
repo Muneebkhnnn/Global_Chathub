@@ -5,7 +5,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { deleteFromCloudinary } from "../utils/Cloudinary.js";
-import { brevo } from "@getbrevo/brevo";
+import  brevo  from "@getbrevo/brevo";
 import crypto from "crypto";
 import { io } from "../socket/socket.js";
 
