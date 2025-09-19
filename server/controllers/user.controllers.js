@@ -70,13 +70,13 @@ const SignUp = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  // Setup authentication
-  let defaultClient = ApiClient.instance;
-  let apiKey = defaultClient.authentications["api-key"];
-  apiKey.apiKey = process.env.BREVO_API_KEY;
+  const defaultClient = new ApiClient();
 
-  // Create API instance
-  const apiInstance = new TransactionalEmailsApi();
+  // Set API key
+  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+
+  // Attach client to API instance
+  const apiInstance = new TransactionalEmailsApi(defaultClient);
 
   const emailContent = new SendSmtpEmail({
     sender: {
@@ -194,14 +194,13 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
   await user.save();
 
-  // Setup authentication
-  let defaultClient = ApiClient.instance;
-  let apiKey = defaultClient.authentications["api-key"];
-  apiKey.apiKey = process.env.BREVO_API_KEY;
+  const defaultClient = new ApiClient();
 
-  // Create API instance
-  const apiInstance = new TransactionalEmailsApi();
+  // Set API key
+  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
 
+  // Attach client to API instance
+  const apiInstance = new TransactionalEmailsApi(defaultClient);
   const emailContent = new SendSmtpEmail({
     sender: {
       name: "Global Chathub",
@@ -472,7 +471,15 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-   const emailContent = new SendSmtpEmail({
+  const defaultClient = new ApiClient();
+
+  // Set API key
+  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
+
+  // Attach client to API instance
+  const apiInstance = new TransactionalEmailsApi(defaultClient);
+
+  const emailContent = new SendSmtpEmail({
     sender: {
       name: "Global Chathub",
       email: "noreply@globalchathub.dev", // must be verified in Brevo
@@ -521,10 +528,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
     console.log("✅ forget password email sent:", data);
   } catch (error) {
     console.error("Error sending  email:", error.message);
-    throw new ApiError(
-      500,
-      "Failed to send  Please try again later."
-    );
+    throw new ApiError(500, "Failed to send email Please try again later.");
   }
 
   return res
