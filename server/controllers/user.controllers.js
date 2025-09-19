@@ -78,6 +78,10 @@ const SignUp = asyncHandler(async (req, res) => {
     TransactionalEmailsApiApiKeys.apiKey,
     process.env.BREVO_API_KEY
   );
+  console.log(
+    "api key exists:",
+    process.env.BREVO_API_KEY ? "attempting to send email" : "no email exists"
+  );
 
   const emailContent = new SendSmtpEmail({
     sender: {
@@ -129,12 +133,12 @@ const SignUp = asyncHandler(async (req, res) => {
     The Global Chathub Team
   `,
   });
-
+  console.log(emailContent);
   try {
     const response = await apiInstance.sendTransacEmail(emailContent);
     console.log("Verification email sent successfully!", response.body);
   } catch (error) {
-    console.error("Email sending failed:", error);
+    console.error("Email sending failed:", error.message);
     throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
@@ -204,7 +208,6 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
     TransactionalEmailsApiApiKeys.apiKey,
     process.env.BREVO_API_KEY
   );
-
   const emailContent = new SendSmtpEmail({
     sender: {
       email: "noreply@globalchathub.dev",
@@ -255,12 +258,10 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
     The Global Chathub Team
   `,
   });
-
   try {
     const response = await apiInstance.sendTransacEmail(emailContent);
     console.log("Verification email sent successfully!", response.body);
   } catch (error) {
-    console.error("Email sending failed:", error);
     throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
