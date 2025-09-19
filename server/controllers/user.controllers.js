@@ -6,6 +6,11 @@ import jwt from "jsonwebtoken";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { Resend } from "resend";
+import {
+  TransactionalEmailsApi,
+  SendSmtpEmail,
+  TransactionalEmailsApiApiKeys,
+} from "@getbrevo/brevo";
 import crypto from "crypto";
 import { io } from "../socket/socket.js";
 
@@ -68,35 +73,72 @@ const SignUp = asyncHandler(async (req, res) => {
   user.verificationToken = verificationtoken;
   user.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
-  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const apiInstance = new TransactionalEmailsApi();
+  apiInstance.setApiKey(
+    TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+
+  // Construct the email object
+  const emailContent = new SendSmtpEmail({
+    sender: {
+      email: "noreply@globalchathub.dev",
+      name: "Global Chathub",
+    },
+    to: {
+      email: user.email,
+      name: user.username,
+    },
+    subject: "Verify Your Email for Global Chathub",
+    htmlContent: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Welcome to Global Chathub!</h2>
+      <p>Hello <strong>${user.username}</strong>,</p>
+      <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+      <p>
+        <a href="${process.env.CLIENT_URL}/verify-email/${verificationtoken}" 
+          style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+          Verify My Email
+        </a>
+      </p>
+      <p>This verification link will expire in <strong>10 minutes</strong>.</p>
+      <p>If you did not requested it, please ignore this email.</p>
+      <br>
+      <p>Cheers,<br>The Global Chathub Team</p>
+    </body>
+    </html>
+  `,
+    textContent: `
+    Welcome to Global Chathub!
+    
+    Hello ${user.username},
+    
+    Thank you for signing up. Please verify your email address by clicking the link below:
+    
+    ${process.env.CLIENT_URL}/verify-email/${verificationtoken}
+    
+    This verification link will expire in 10 minutes.
+    
+    If you did not create an account, please ignore this email.
+    
+    Cheers,
+    The Global Chathub Team
+  `,
+  });
 
   try {
-    const emailResult = await resend.emails.send({
-      from: "noreply@globalchathub.dev",
-      to: user.email,
-      subject: "Please Verify your email",
-      html: `
-              <h2>Verify Email</h2>
-              <p>Hello ${user.username},</p>
-              <p>Click the button below to Verify your email:</p>
-              <a href="${process.env.CLIENT_URL}/verify-email/${verificationtoken}" 
-                 style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                 Verify Email
-              </a>
-              <p>This link will expire in 10 minutes.</p>
-              <p>If you didn't request this, please ignore this email.</p>
-            `,
-    });
-    console.log("✅ Email sent successfully!");
-    console.log("📧 Email ID:", emailResult.id);
-    console.log("📧 Email Result:", emailResult);
+    const response = await apiInstance.sendTransacEmail(emailContent);
+    console.log("Verification email sent successfully!", response.body);
   } catch (error) {
-    console.log("email sending failed " + error.message);
     console.error("Email sending failed:", error);
-    throw new ApiError(
-      500,
-      "Something went wrong while sending email: " + error.message
-    );
+    // Don't expose the specific error to the user for security
+    throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
   const createdUser = await User.findById(user._id).select("-password");
@@ -160,36 +202,70 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
   await user.save();
 
-  const resend = new Resend(process.env.RESEND_API_KEY);
+  const apiInstance = new TransactionalEmailsApi();
+  apiInstance.setApiKey(
+    TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+
+  // Construct the email object
+  const emailContent = new SendSmtpEmail({
+    sender: {
+      email: "noreply@globalchathub.dev",
+      name: "Global Chathub",
+    },
+    to: {
+      email: user.email,
+      name: user.username,
+    },
+    subject: "Verify Your Email for Global Chathub",
+    htmlContent: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Welcome to Global Chathub!</h2>
+      <p>Hello <strong>${user.username}</strong>,</p>
+      <p>Click below to verify your account</p>
+      <p>
+        <a href="${process.env.CLIENT_URL}/verify-email/${verificationtoken}" 
+          style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+          Verify My Email
+        </a>
+      </p>
+      <p>This verification link will expire in <strong>10 minutes</strong>.</p>
+      <p>If you did not requested it, please ignore this email.</p>
+      <br>
+      <p>Cheers,<br>The Global Chathub Team</p>
+    </body>
+    </html>
+  `,
+    textContent: `
+    Welcome to Global Chathub!
+    
+    Hello ${user.username},
+    
+    Click below to verify your account
+    
+    ${process.env.CLIENT_URL}/verify-email/${verificationtoken}
+    
+    This verification link will expire in 10 minutes.
+    
+    If you did not create an account, please ignore this email.
+    
+    Cheers,
+    The Global Chathub Team
+  `,
+  });
 
   try {
-    const emailResult = await resend.emails.send({
-      from: "noreply@globalchathub.dev",
-      to: user.email,
-      subject: "Please Verify your email",
-      html: `
-              <h2>Verify Email</h2>
-              <p>Hello ${user.username},</p>
-              <p>Click the button below to Verify your email:</p>
-              <a href="${process.env.CLIENT_URL}/verify-email/${verificationtoken}" 
-                 style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                 Verify Email
-              </a>
-              <p>This link will expire in 10 minutes.</p>
-              <p>If you didn't request this, please ignore this email.</p>
-            `,
-    });
-    console.log("CLIENT_URL is:", process.env.CLIENT_URL);
-    console.log("✅ Email sent successfully!");
-    console.log("📧 Email ID:", emailResult.id);
-    console.log("📧 Email Result:", emailResult);
+    const response = await apiInstance.sendTransacEmail(emailContent);
+    console.log("Verification email sent successfully!", response.body);
   } catch (error) {
-    console.log("email sending failed " + error.message);
     console.error("Email sending failed:", error);
-    throw new ApiError(
-      500,
-      "Something went wrong while sending email: " + error.message
-    );
+    throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
   return res
@@ -407,7 +483,9 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordToken = resetPasswordToken;
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
+
   console.log("client url" + process.env.CLIENT_URL);
+
   const resend = new Resend(process.env.RESEND_API_KEY);
   try {
     const emailResult = await resend.emails.send({
@@ -431,6 +509,73 @@ const forgetPassword = asyncHandler(async (req, res) => {
       500,
       "Something went wrong while sending email: " + error.message
     );
+  }
+
+   const apiInstance = new TransactionalEmailsApi();
+  apiInstance.setApiKey(
+    TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+
+  // Construct the email object
+  const emailContent = new SendSmtpEmail({
+    sender: {
+      email: "noreply@globalchathub.dev",
+      name: "Global Chathub",
+    },
+    to: {
+      email: user.email,
+      name: user.username,
+    },
+    subject: "Forget Password", 
+    htmlContent: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+    </head>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Forget Password</h2>
+      <p>Hello <strong>${user.username}</strong>,</p>
+      <p>Click below to reset your password</p>
+      <p>
+        <a href="${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}" 
+          style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+          Reset Password
+        </a>
+      </p>
+      <p>This link will expire in <strong>10 minutes</strong>.</p>
+      <p>If you did not requested it, please ignore this email.</p>
+      <br>
+      <p>Cheers,<br>The Global Chathub Team</p>
+    </body>
+    </html>
+  `,
+    textContent: `
+    Welcome to Global Chathub!
+    
+    Hello ${user.username},
+    
+    Change your password by clicking the below:
+    
+    ${process.env.CLIENT_URL}/reset-password/${resetPasswordToken}
+    
+    This link will expire in 10 minutes.
+    
+    If you did not requested it, please ignore this email.
+    
+    Cheers,
+    The Global Chathub Team
+  `,
+  });
+
+  try {
+    const response = await apiInstance.sendTransacEmail(emailContent);
+    console.log("Verification email sent successfully!",response.body);
+  } catch (error) {
+    console.error("Email sending failed:", error);
+    // Don't expose the specific error to the user for security
+    throw new ApiError(500, "A system error occurred. Please try again later.");
   }
 
   return res
