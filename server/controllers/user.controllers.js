@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
 import { deleteFromCloudinary } from "../utils/Cloudinary.js";
 import brevo from "@getbrevo/brevo";
-const { ApiClient, TransactionalEmailsApi, SendSmtpEmail } = brevo;
+const { TransactionalEmailsApi, SendSmtpEmail } = brevo;
 import crypto from "crypto";
 import { io } from "../socket/socket.js";
 
@@ -70,13 +70,13 @@ const SignUp = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  const defaultClient = new ApiClient();
+  const apiInstance = new TransactionalEmailsApi();
 
-  // Set API key
-  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
-
-  // Attach client to API instance
-  const apiInstance = new TransactionalEmailsApi(defaultClient);
+  // ✅ Set the API key directly on it
+  apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
 
   const emailContent = new SendSmtpEmail({
     sender: {
@@ -194,13 +194,13 @@ const resendVerificationEmail = asyncHandler(async (req, res) => {
   user.verificationTokenExpires = Date.now() + 15 * 60 * 1000;
   await user.save();
 
-  const defaultClient = new ApiClient();
+  const apiInstance = new TransactionalEmailsApi();
 
-  // Set API key
-  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
-
-  // Attach client to API instance
-  const apiInstance = new TransactionalEmailsApi(defaultClient);
+  // ✅ Set the API key directly on it
+  apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
   const emailContent = new SendSmtpEmail({
     sender: {
       name: "Global Chathub",
@@ -471,14 +471,14 @@ const forgetPassword = asyncHandler(async (req, res) => {
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
   await user.save();
 
-  const defaultClient = new ApiClient();
+  const apiInstance = new TransactionalEmailsApi();
 
-  // Set API key
-  defaultClient.authentications["apiKey"].apiKey = process.env.BREVO_API_KEY;
-
-  // Attach client to API instance
-  const apiInstance = new TransactionalEmailsApi(defaultClient);
-
+  // ✅ Set the API key directly on it
+  apiInstance.setApiKey(
+    brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY
+  );
+  
   const emailContent = new SendSmtpEmail({
     sender: {
       name: "Global Chathub",
